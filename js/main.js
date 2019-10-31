@@ -2,11 +2,11 @@ let waiter;
 let carpet;
 let customers = [];
 let tables = [];
-let plates = [];
+let dishes = [];
 let interactiveElements = [];
 let waiterJournal = [];
 let customersJournal = [];
-let platesJournal = [];
+let dishesJournal = [];
 let gameover;
 let money = 0;
 
@@ -38,8 +38,8 @@ function draw() {
     // draw tables & seats
     tables.forEach(table => table.draw());
 
-    // draw each plate checking its journal position (defaut: its own position)
-    drawArray(`plates`, plates, platesJournal);
+    // draw each dish checking its journal position (defaut: its own position)
+    drawArray(`dishes`, dishes, dishesJournal);
 
     // draw each customer checking its journal position (defaut: its own position)
     drawArray(`customers`, customers, customersJournal);
@@ -73,20 +73,20 @@ function draw() {
 
 
     // if waiter walks in the interaction zone of the carpet
-    if(waiter.x === plates[0].interactionX && waiter.y === plates[0].interactionY) {
-        plates[0].isTakenByWaiter = true;
+    if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
+        dishes[0].isTakenByWaiter = true;
     }
 
-    // if plate is "following" the waiter
-    if(plates[0].isTakenByWaiter === true) {
+    // if dish is "following" the waiter
+    if(dishes[0].isTakenByWaiter === true) {
         tables.forEach(function (table) {
             if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
-                plates[0].isTakenByWaiter = false;
-                addToJournal(`plates`,table.plateX,table.plateY); // update the plates journal with the plate coordinates
+                dishes[0].isTakenByWaiter = false;
+                addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
             }
         });
 
-        plates[0].follow(waiter,50);
+        dishes[0].follow(waiter,50);
     }
 }
 
@@ -132,8 +132,8 @@ function addToJournal(component,x,y) {
         case `customers`:
             customersJournal.push({x: x, y:y});
             break;
-        case `plates`:
-            platesJournal.push({x: x, y:y});
+        case `dishes`:
+            dishesJournal.push({x: x, y:y});
             break;
     }
     console.log(`1 event added to the ${component} journal`);
@@ -147,8 +147,8 @@ function removeFromJournal(component) {
         case `customers`:
             customersJournal.shift();
             break;
-        case `plates`:
-            platesJournal.shift();
+        case `dishes`:
+            dishesJournal.shift();
             break;
     }
     console.log(`1 event removed from the ${component} journal`);
@@ -184,14 +184,14 @@ function startGame() {
     tables.push(new Table(3*W/4, H/5));
     tables.push(new Table(W/4, 4*H/5));
     tables.push(new Table(3*W/4, 4*H/5));
-    plates.push(new Plate());
+    dishes.push(new Dish(`black`));
 
     // fill interactiveElements array
     interactiveElements.push(waiter);
     interactiveElements.push(carpet);
     pushToInteractivesElements(customers);
     pushToInteractivesElements(tables);
-    pushToInteractivesElements(plates);
+    pushToInteractivesElements(dishes);
     
     requestAnimationFrame(animLoop);
 }
