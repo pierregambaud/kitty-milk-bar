@@ -4,7 +4,8 @@ let customers = [];
 let tables = [];
 let plates = [];
 let interactiveElements = [];
-let journal = [];
+let customerJournal = [];
+let waiterJournal = [];
 let gameover;
 let money = 0;
 
@@ -46,22 +47,39 @@ function draw() {
     plates.forEach(plate => plate.draw());
 
     // draw customer
-    customers.forEach(customer => customer.draw());
+    if (customerJournal.length !== 0) {
+        customers.forEach(function(customer) {
+            customer.moveTo(`customer`,customerJournal[0].x,customerJournal[0].y);
+            customer.draw();
+        });
+    } else {
+        customers.forEach(function(customer) {
+            customer.draw();
+        });
+    }
 
+    // draw waiter    
+    if (waiterJournal.length !== 0) {
+        waiter.moveTo(`waiter`, waiterJournal[0].x, waiterJournal[0].y);
+    }
+    waiter.draw();
+
+    // if waiter walks in the interaction zone of the carpet
     if(waiter.x === carpet.interactionX && waiter.y === carpet.interactionY) {
         waiter.seatCustomer();
     }
 
-    if(customers[0].followingWaiter === true) {
+    // if customer is following the waiter
+    if(customers[0].isFollowingWaiter === true) {
+        tables.forEach(function (table) {
+            if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
+                customers[0].isFollowingWaiter = false;
+                customers[0].sitAtTheTable(table);
+            }
+        })
+        
         customers[0].followWaiter();
     }
-
-    // draw waiter    
-    if (journal.length !== 0) {
-        waiter.moveTo(journal[0].x, journal[0].y);
-    }
-    
-    waiter.draw();
 }
 
 // listen to clicks
@@ -73,7 +91,7 @@ canvas.addEventListener('click', function(event) {
     // check if a validated interactive element has been clicked on
     function checkInteration(component,x,y) {
         if(x < component.surfaceRight && x > component.surfaceLeft && y < component.surfaceTop && y > component.surfaceBottom) {
-            addToJournal(component.interactionX, component.interactionY);
+            addToJournal(`waiter`, component.interactionX, component.interactionY);
         }
     }
 
@@ -83,14 +101,28 @@ canvas.addEventListener('click', function(event) {
 
 
 // journal
-function addToJournal(x,y) {
-    journal.push({x: x, y:y});
-    console.log(`1 event added to journal`);
+function addToJournal(component,x,y) {
+    switch(component) {
+        case `waiter`:
+            waiterJournal.push({x: x, y:y});
+            break;
+        case `customer`:
+            customerJournal.push({x: x, y:y});
+            break;
+    }
+    console.log(`1 event added to the ${component} journal`);
 }
 
-function removeFromJournal() {
-    journal.shift();
-    console.log(`1 event removed from journal`);
+function removeFromJournal(component) {
+    switch(component) {
+        case `waiter`:
+            waiterJournal.shift();
+            break;
+        case `customer`:
+            customerJournal.shift();
+            break;
+    }
+    console.log(`1 event removed from the ${component} journal`);
 }
 
 

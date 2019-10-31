@@ -13,7 +13,7 @@ class Waiter extends Component {
     }
 
     seatCustomer() {
-        customers[0].followingWaiter = true;
+        customers[0].isFollowingWaiter = true;
     }
 
     takeOrder() {

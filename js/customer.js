@@ -1,7 +1,8 @@
 class Customer extends Component {
     constructor() {
         super(40,40,W/6,H/2,40+W/6+150,H/2);
-        this.followingWaiter = false;
+        this.isFollowingWaiter = false;
+        this.isSeated = false;
         this.favoriteFood;
     }
 
@@ -24,7 +25,7 @@ class Customer extends Component {
         var destinationY;
 
         if(Math.abs(waiter.x-this.x) < distanceBetweenPeople && Math.abs(waiter.y-this.y) < distanceBetweenPeople) {
-            console.log(`following Waiter but waiting for Waiter to move`);
+            console.log(`follows Waiter but waits for Waiter to move`);
         } else {
             // determine value for destinationX
             if(Math.abs(waiter.x-this.x) >= distanceBetweenPeople) {
@@ -40,13 +41,13 @@ class Customer extends Component {
                 destinationY = this.y;
             }
 
-            this.moveTo(destinationX, destinationY);
-            console.log(`following Waiter and moving toward him`);
+            this.moveTo(`customer`,destinationX, destinationY);
+            console.log(`follows Waiter and moves toward him`);
         }
     }
 
-    sitAtTheTable() {
-
+    sitAtTheTable(table) {
+        addToJournal(`customer`,table.chairX,table.chairY);
     }
 
     choosePlate() {
