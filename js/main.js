@@ -61,7 +61,7 @@ function draw() {
     }
 
     // if customer is following the waiter
-    if(customers[0].isFollowingWaiter === true) {
+    if(customers[0].isFollowingWaiter) {
         tables.forEach(function (table) {
             if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
                 customers[0].isFollowingWaiter = false;
@@ -72,18 +72,18 @@ function draw() {
         customers[0].follow(waiter,100);
     }
 
-
     // if waiter walks in the interaction zone of the carpet
     if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
         dishes[0].isTakenByWaiter = true;
     }
 
     // if dish is "following" the waiter
-    if(dishes[0].isTakenByWaiter === true) {
+    if(dishes[0].isTakenByWaiter) {
         tables.forEach(function (table) {
             if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
                 if(customers[0].x === table.chairX && customers[0].y === table.chairY && dishes[0].name === customers[0].favoriteDish.name) { // check if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
                     dishes[0].isTakenByWaiter = false;
+                    customers[0].eatDish();
                     console.log(`exactly the right table for this dish`);
                     addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
                 } else {

@@ -2,6 +2,7 @@ class Customer extends DynamicComponent {
     constructor() {
         super(40,40,W/6,H/2,40+W/6+150,H/2,`customer`);
         this.isFollowingWaiter = false;
+        this.isLeavingRestaurant = false;
         this.favoriteDish = this.chooseDish();
     }
 
@@ -27,8 +28,12 @@ class Customer extends DynamicComponent {
 
     }
 
-    eatPlate() {
-
+    eatDish() {
+        setTimeout(function () {
+            customers[0].isLeavingRestaurant = true;
+            addToJournal(`customers`,-50,-50);
+            console.log('customer leave table');
+        }, 5000);
     }
 
     payBill() {

@@ -2,7 +2,6 @@ class DynamicComponent extends Component {
     constructor(w,h,x,y,iX,iY,name) {
         super(w,h,x,y,iX,iY);
         this.name = name;
-        this.isMoving = false;
     }
 
     moveTo(component,destinationX,destinationY) {
