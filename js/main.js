@@ -16,6 +16,7 @@ const canvasTop = canvas.offsetTop;
 const ctx = document.querySelector('canvas').getContext('2d');
 const W = ctx.canvas.width;
 const H = ctx.canvas.height;
+const menu = [{name: `Chocolate Milkshake`, color:`brown`}, {name: `Vanilla Milkshake`, color:`vanilla`}, {name: `Strawberry Milkshake`, color:`pink`}];
 
 let kitchenTableWidth = W/10;
 let kitchenTableHeight = H/4;

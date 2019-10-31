@@ -1,8 +1,8 @@
 class Dish extends DynamicComponent {
-    constructor(color) {
+    constructor(dish) {
         super(25,25,W-kitchenTableWidth/2,H/2,25+W-kitchenTableWidth/2-150,H/2,`dish`);
         this.isTakenByWaiter = false;
-        this.color = color;
+        this.color = dish.color;
     }
 
     draw() {
@@ -13,6 +13,4 @@ class Dish extends DynamicComponent {
         ctx.fill();
         ctx.stroke();
     }
-
-
 }
