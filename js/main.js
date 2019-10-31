@@ -62,31 +62,31 @@ function draw() {
     // if customer is following the waiter
     if(customers[0].isFollowingWaiter === true) {
         tables.forEach(function (table) {
-            if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
+            if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
                 customers[0].isFollowingWaiter = false;
-                addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chear coordonates
+                addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chair coordinates
             }
         })
         
-        customers[0].followWaiter();
+        customers[0].follow(waiter,100);
     }
+
 
     // if waiter walks in the interaction zone of the carpet
     if(waiter.x === plates[0].interactionX && waiter.y === plates[0].interactionY) {
         plates[0].isTakenByWaiter = true;
     }
 
-
     // if plate is "following" the waiter
     if(plates[0].isTakenByWaiter === true) {
         tables.forEach(function (table) {
-            if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
+            if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
                 plates[0].isTakenByWaiter = false;
-                addToJournal(`plates`,table.plateX,table.plateY);
+                addToJournal(`plates`,table.plateX,table.plateY); // update the plates journal with the plate coordinates
             }
         });
 
-        plates[0].followWaiter();
+        plates[0].follow(waiter,50);
     }
 }
 
