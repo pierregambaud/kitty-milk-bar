@@ -4,8 +4,9 @@ let customers = [];
 let tables = [];
 let plates = [];
 let interactiveElements = [];
-let customerJournal = [];
 let waiterJournal = [];
+let customersJournal = [];
+let platesJournal = [];
 let gameover;
 let money = 0;
 
@@ -22,11 +23,10 @@ let kitchenTableHeight = H/4;
 
 // draw canvas
 function draw() {
-    ctx.clearRect(0,0,W,H);
 
-    // *********************
-    // STATIC ELEMENTS
-    // *********************
+    // ******** DRAWING ********
+    // *************************
+    ctx.clearRect(0,0,W,H);
 
     // welcome carpet
     carpet.draw();
@@ -35,38 +35,28 @@ function draw() {
     ctx.fillStyle = `green`;
     ctx.fillRect(W-kitchenTableWidth, H/2-kitchenTableHeight/2, kitchenTableWidth, kitchenTableHeight);
 
-
-    // *********************
-    // INTERACTIVE ELEMENTS
-    // *********************
-
     // draw tables & seats
     tables.forEach(table => table.draw());
 
-    // draw plates
-    plates.forEach(plate => plate.draw());
+    // draw each plate checking its journal position (defaut: its own position)
+    drawArray(`plates`, plates, platesJournal);
 
-    // draw customer
-    if (customerJournal.length !== 0) {
-        customers.forEach(function(customer) {
-            customer.moveTo(`customer`,customerJournal[0].x,customerJournal[0].y);
-            customer.draw();
-        });
-    } else {
-        customers.forEach(function(customer) {
-            customer.draw();
-        });
-    }
+    // draw each customer checking its journal position (defaut: its own position)
+    drawArray(`customers`, customers, customersJournal);
 
-    // draw waiter    
+    // draw waiter checking his journal position (defaut: his own position)
     if (waiterJournal.length !== 0) {
         waiter.moveTo(`waiter`, waiterJournal[0].x, waiterJournal[0].y);
     }
     waiter.draw();
 
+
+    // ******** INTERACTIONS ********
+    // ******************************
+
     // if waiter walks in the interaction zone of the carpet
     if(waiter.x === carpet.interactionX && waiter.y === carpet.interactionY) {
-        waiter.seatCustomer();
+        customers[0].isFollowingWaiter = true; // update the isFollowingWaiter status of the first customer in the queue
     }
 
     // if customer is following the waiter
@@ -74,11 +64,29 @@ function draw() {
         tables.forEach(function (table) {
             if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
                 customers[0].isFollowingWaiter = false;
-                customers[0].sitAtTheTable(table);
+                addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chear coordonates
             }
         })
         
         customers[0].followWaiter();
+    }
+
+    // if waiter walks in the interaction zone of the carpet
+    if(waiter.x === plates[0].interactionX && waiter.y === plates[0].interactionY) {
+        plates[0].isTakenByWaiter = true;
+    }
+
+
+    // if plate is "following" the waiter
+    if(plates[0].isTakenByWaiter === true) {
+        tables.forEach(function (table) {
+            if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
+                plates[0].isTakenByWaiter = false;
+                addToJournal(`plates`,table.plateX,table.plateY);
+            }
+        });
+
+        plates[0].followWaiter();
     }
 }
 
@@ -100,14 +108,32 @@ canvas.addEventListener('click', function(event) {
 }, false);
 
 
-// journal
+// draw arrays
+function drawArray(arrayName, array, journalArray) {
+    if (journalArray.length !== 0) {
+        array.forEach(function(el) {
+            el.moveTo(arrayName,journalArray[0].x,journalArray[0].y);
+            el.draw();
+        });
+    } else {
+        array.forEach(function(el) {
+            el.draw();
+        });
+    }
+}
+
+
+// update journal
 function addToJournal(component,x,y) {
     switch(component) {
         case `waiter`:
             waiterJournal.push({x: x, y:y});
             break;
-        case `customer`:
-            customerJournal.push({x: x, y:y});
+        case `customers`:
+            customersJournal.push({x: x, y:y});
+            break;
+        case `plates`:
+            platesJournal.push({x: x, y:y});
             break;
     }
     console.log(`1 event added to the ${component} journal`);
@@ -118,8 +144,11 @@ function removeFromJournal(component) {
         case `waiter`:
             waiterJournal.shift();
             break;
-        case `customer`:
-            customerJournal.shift();
+        case `customers`:
+            customersJournal.shift();
+            break;
+        case `plates`:
+            platesJournal.shift();
             break;
     }
     console.log(`1 event removed from the ${component} journal`);

@@ -7,6 +7,8 @@ class Table extends Component {
         this.chairX = x - W/7;
         this.chairY = y;
         this.chairW = 30;
+        this.plateX = x - 60;
+        this.plateY = y;
     }
 
     draw() {

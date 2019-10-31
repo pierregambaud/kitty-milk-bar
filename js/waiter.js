@@ -1,4 +1,4 @@
-class Waiter extends Component {
+class Waiter extends DynamicComponent {
     constructor() {
         super(40,40,W/2,H/2,0,0);
     }
@@ -12,16 +12,7 @@ class Waiter extends Component {
         ctx.stroke();
     }
 
-    seatCustomer() {
-        customers[0].isFollowingWaiter = true;
-    }
-
     takeOrder() {
-
-    }
-
-    takePlate() {
-
     }
 
     serveCustomer(plate) {

@@ -1,8 +1,7 @@
-class Customer extends Component {
+class Customer extends DynamicComponent {
     constructor() {
         super(40,40,W/6,H/2,40+W/6+150,H/2);
         this.isFollowingWaiter = false;
-        this.isSeated = false;
         this.favoriteFood;
     }
 
@@ -44,10 +43,6 @@ class Customer extends Component {
             this.moveTo(`customer`,destinationX, destinationY);
             console.log(`follows Waiter and moves toward him`);
         }
-    }
-
-    sitAtTheTable(table) {
-        addToJournal(`customer`,table.chairX,table.chairY);
     }
 
     choosePlate() {
