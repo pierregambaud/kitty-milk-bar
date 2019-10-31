@@ -82,8 +82,13 @@ function draw() {
     if(dishes[0].isTakenByWaiter === true) {
         tables.forEach(function (table) {
             if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
-                dishes[0].isTakenByWaiter = false;
-                addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
+                if(customers[0].x === table.chairX && customers[0].y === table.chairY && dishes[0].name === customers[0].favoriteDish.name) { // check if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
+                    dishes[0].isTakenByWaiter = false;
+                    console.log(`exactly the right table for this dish`);
+                    addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
+                } else {
+                    console.log(`not the right table for this dish`);
+                }
             }
         });
 
@@ -185,7 +190,7 @@ function startGame() {
     tables.push(new Table(3*W/4, H/5));
     tables.push(new Table(W/4, 4*H/5));
     tables.push(new Table(3*W/4, 4*H/5));
-    dishes.push(new Dish(`black`));
+    dishes.push(new Dish(customers[0].favoriteDish));
 
     // fill interactiveElements array
     interactiveElements.push(waiter);
