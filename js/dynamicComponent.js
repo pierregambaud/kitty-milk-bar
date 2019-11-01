@@ -1,7 +1,8 @@
 class DynamicComponent extends Component {
-    constructor(w,h,x,y,iX,iY,name) {
+    constructor(w,h,x,y,iX,iY,name,status) {
         super(w,h,x,y,iX,iY);
         this.name = name;
+        this.status = status;
     }
 
     moveTo(component,destinationX,destinationY) {

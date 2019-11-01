@@ -128,15 +128,15 @@ function draw() {
                 } else {
                     // when waiter arrives to the interaction coordinates of the dish
                     if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
-                        dishes[0].isTakenByWaiter = true;
+                        dishes[0].status = `isTakenByWaiter`;
                     }
 
-                    if(dishes[0].isTakenByWaiter) {
+                    if(dishes[0].status === `isTakenByWaiter`) {
                         // when waiter arrives to the interaction coordinates of one of the tables
                         tables.forEach(function (table) {
                             if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
                                 if(customers[0].x === table.chairX && customers[0].y === table.chairY && dishes[0].name === customers[0].favoriteDish.name) { // check if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
-                                    dishes[0].isTakenByWaiter = false;
+                                    dishes[0].status = `isLaidOnTheRightTable`;
                                     console.log(`exactly the right table for this dish`);
                                     addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
                                 } else {
@@ -159,6 +159,7 @@ function draw() {
                 if(timer <= 300) {
                     timer++;
                 } else { // once dish eaten, the customer pays and leaves
+                    dishes[0].status = `isEmpty`;
                     customers[0].status = `isLeavingRestaurant`;
                     addToJournal(`customers`,-50,-50);
                     timer = 0;
