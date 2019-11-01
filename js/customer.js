@@ -1,9 +1,8 @@
 class Customer extends DynamicComponent {
     constructor() {
         super(40,40,W/6,H/2,40+W/6+150,H/2,`customer`);
-        this.isFollowingWaiter = false;
-        this.isLeavingRestaurant = false;
         this.favoriteDish = this.chooseDish();
+        this.status = "isEnteringTheRestaurant";
     }
 
     draw() {
@@ -15,32 +14,17 @@ class Customer extends DynamicComponent {
         ctx.stroke();
     }
 
-    standInLine() {  
-
-    }
-
     chooseDish() {
         var randomIndex = Math.floor(Math.random() * menu.length);
         return menu[randomIndex];
     }
 
     callWaiter() {
-
-    }
-
-    eatDish() {
-        setTimeout(function () {
-            customers[0].isLeavingRestaurant = true;
-            addToJournal(`customers`,-50,-50);
-            console.log('customer leave table');
-        }, 5000);
-    }
-
-    payBill() {
-
-    }
-
-    leaveRestaurant() {
-
+        ctx.fillStyle = "white";
+        ctx.fillRect(this.x+40, this.y-100, 200, 90);
+        ctx.font = "50px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("please!", this.x+100+40, this.y+60-100);
     }
 }
