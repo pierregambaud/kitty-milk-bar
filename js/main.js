@@ -82,6 +82,8 @@ function draw() {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
                             addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
+                            customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
+                            customer.interactionY = table.interactionY; // update the customer interaction Y according to the table he is seaten
                         }
                     });
                     break;
@@ -222,7 +224,7 @@ canvas.addEventListener('click', function(event) {
     console.log(`clic x: `,clickX,` y: `,clickY);
 
     // check if a validated interactive element has been clicked on
-    function checkInteration(component,x,y) {
+    function checkWaiterInteractionWith(component,x,y) {
         // defines interactive area for each component based on its actual property
         var surfaceTop = component.y + component.h;
         var surfaceRight = component.x + component.w;
@@ -234,7 +236,7 @@ canvas.addEventListener('click', function(event) {
         }
     }
 
-    interactiveElements.forEach(element => checkInteration(element,clickX,clickY));
+    interactiveElements.forEach(element => checkWaiterInteractionWith(element,clickX,clickY));
     
 }, false);
 
