@@ -160,6 +160,8 @@ function draw() {
                                         dishes[0].status = `isLaidOnTheRightTable`;
                                         console.log(`exactly the right table for this dish`);
                                         addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
+                                        dishes[0].interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
+                                        dishes[0].interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
                                         customer.status = `isEating`;
                                     } else {
                                         console.log(`not the right table for this dish`);
