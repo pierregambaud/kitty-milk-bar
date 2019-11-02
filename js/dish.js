@@ -1,6 +1,6 @@
 class Dish extends DynamicComponent {
-    constructor(dish) {
-        super(25,25,W-kitchenTableWidth/2,H/2,25+W-kitchenTableWidth/2-150,H/2,dish.name,`isReadyToBeServed`);
+    constructor(x,y,dish) {
+        super(25,25,x,y,25+x-150,y,dish.name,`isReadyToBeServed`);
         this.name = dish.name;
         this.color = dish.color;
     }

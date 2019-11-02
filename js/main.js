@@ -1,5 +1,6 @@
 let waiter;
-let carpet;
+let lobby;
+let servingHatch;
 let customers = [];
 let tables = [];
 let dishes = [];
@@ -19,9 +20,6 @@ const W = ctx.canvas.width;
 const H = ctx.canvas.height;
 const menu = [{name: `Chocolate Milkshake`, color:`brown`}, {name: `Vanilla Milkshake`, color:`vanilla`}, {name: `Strawberry Milkshake`, color:`pink`}];
 
-let kitchenTableWidth = W/10;
-let kitchenTableHeight = H/4;
-
 
 // draw canvas
 function draw() {
@@ -30,12 +28,11 @@ function draw() {
     // *************************
     ctx.clearRect(0,0,W,H);
 
-    // welcome carpet
-    carpet.draw();
+    // welcome lobby
+    lobby.draw();
 
-    // draw kitchen table
-    ctx.fillStyle = `green`;
-    ctx.fillRect(W-kitchenTableWidth, H/2-kitchenTableHeight/2, kitchenTableWidth, kitchenTableHeight);
+    // draw serving hatch
+    servingHatch.draw();
 
     // draw tables & seats
     tables.forEach(table => table.draw());
@@ -56,17 +53,16 @@ function draw() {
     // ******** CUSTOMER JOURNEY ********
     // **********************************
     if(customers[0]) {
-        console.log(timer);
         switch(customers[0].status) {
-            // 1: he arrives on the red carpet
+            // 1: he arrives on the red lobby
             case `isEnteringTheRestaurant`: 
                 customers[0].status = `isStandingInLine`;
                 break;
             
             // 2. he waits for the waiter to seat him
             case `isStandingInLine`:
-                // if waiter walks in the interaction zone of the carpet
-                if(waiter.x === carpet.interactionX && waiter.y === carpet.interactionY) {
+                // if waiter walks in the interaction zone of the lobby
+                if(waiter.x === lobby.interactionX && waiter.y === lobby.interactionY) {
                     customers[0].status = `isFollowingTheWaiter`;
                 }
                 break;
@@ -121,10 +117,23 @@ function draw() {
                     if(timer <= 300) {
                         timer++;
                     } else { // display the dish
-                        dishes.push(new Dish(customers[0].favoriteDish));
-                        pushToInteractivesElements(dishes);
+                        var dishSpotAvailability;
+                        servingHatch.dishesSpots.forEach(function(spot) { // find the first dish spot available on the serving hatch
+                            if(!dishSpotAvailability) {
+                                if(spot.dish === null) {
+                                    dishSpotAvailability = true;
+                                    dishes.push(new Dish(spot.x, spot.y, customers[0].favoriteDish));
+                                    pushToInteractivesElements(dishes);
+                                }
+                            }
+                        });
+
+                        if(!dishSpotAvailability) { // if availability is still false, it means all spots are taken: game over
+                            console.log(`game over`);
+                        }
+                        
                         timer = 0;
-                    };
+                    }
                 } else {
                     // when waiter arrives to the interaction coordinates of the dish
                     if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
@@ -183,6 +192,7 @@ function draw() {
     }
 }
 
+
 // listen to clicks
 canvas.addEventListener('click', function(event) {
     var clickX = event.pageX - canvasLeft,
@@ -201,7 +211,7 @@ canvas.addEventListener('click', function(event) {
 }, false);
 
 
-// draw arrays
+// function to draw arrays
 function drawArray(arrayName, array, journalArray) {
     if (journalArray.length !== 0) {
         array.forEach(function(el) {
@@ -216,7 +226,7 @@ function drawArray(arrayName, array, journalArray) {
 }
 
 
-// update journal
+// functions to update journals
 function addToJournal(component,x,y) {
     switch(component) {
         case `waiter`:
@@ -261,7 +271,7 @@ function animLoop() {
 }
 
 
-// fill interactive elements array
+// function to fill interactive elements array
 function pushToInteractivesElements(array) {
     array.forEach(element => interactiveElements.push(element))
 }
@@ -269,7 +279,8 @@ function pushToInteractivesElements(array) {
 
 function startGame() {
     waiter = new Waiter();
-    carpet = new Carpet();
+    lobby = new Lobby();
+    servingHatch = new ServingHatch();
 
     // fill each component array
     customers.push(new Customer());
@@ -280,7 +291,7 @@ function startGame() {
 
     // fill interactiveElements array
     interactiveElements.push(waiter);
-    interactiveElements.push(carpet);
+    interactiveElements.push(lobby);
     pushToInteractivesElements(customers);
     pushToInteractivesElements(tables);
     
