@@ -1,6 +1,6 @@
 class Waiter extends DynamicComponent {
     constructor() {
-        super(40,40,W/2,H/2,null,null,`waiter`,`isDoingNothing`);
+        super(40,40,W/2,H/2,null,null,`waiter`,`isAvailable`);
     }
 
     draw() {

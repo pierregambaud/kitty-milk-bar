@@ -59,7 +59,7 @@ function draw() {
                 case `isEnteringTheRestaurant`: 
                     // if the customer reaches his spot in the lobby
                     lobby.customersSpots.forEach(function(spot) {
-                        if(customer.x === spot.x && customer.y === spot.y) {
+                        if(spot.available && customer.x === spot.x && customer.y === spot.y) {
                             customer.status = `isStandingInLine`;
                         }
                     });
@@ -68,20 +68,23 @@ function draw() {
                 // 2. he waits for the waiter to seat him
                 case `isStandingInLine`:
                     // if waiter walks in the interaction zone of the customer
-                    if(waiter.x === customer.interactionX && waiter.y === customer.interactionY) {
+                    if(waiter.x === customer.interactionX && waiter.y === customer.interactionY && waiter.status === "isAvailable") {
                         customer.status = `isFollowingTheWaiter`;
+                        waiter.status = `isTakingCustomerToATable`;
                     }
                     break;
                 
                 // 3. he follows the waiter
                 case `isFollowingTheWaiter`:
                     customer.follow(waiter,100);
+                    lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
                             addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
+                            waiter.status = `isAvailable`;
                             customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
                             customer.interactionY = table.interactionY; // update the customer interaction Y according to the table he is seaten
                         }
@@ -118,31 +121,20 @@ function draw() {
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY && customer.x === table.chairX && customer.y === table.chairY) {
                             customer.status = `isWaitingForTheDish`;
+                            waiter.status = `isTakingTheCustomerOrder`;
                         }
                     });
                     break;
                 
                 // 7: once ordered, he waits for the dish
-                case `isWaitingForTheDish`:  
+                case `isWaitingForTheDish`:
+                    waiter.status = `isAvailable`;
                     // transmit to the kitchen the order
                     if(dishes.length === 0) {
                         if(timer <= 300) {
                             timer++;
                         } else { // display the dish
-                            var dishSpotAvailability;
-                            servingHatch.dishesSpots.forEach(function(spot) { // find the first dish spot available on the serving hatch
-                                if(!dishSpotAvailability) {
-                                    if(spot.available === true) {
-                                        dishSpotAvailability = true;
-                                        dishes.push(new Dish(spot.x, spot.y, customer.favoriteDish));
-                                        pushToInteractivesElements(dishes);
-                                    }
-                                }
-                            });
-
-                            if(!dishSpotAvailability) { // if availability is still false, it means all spots are taken: game over
-                                gameover = true;
-                            }
+                            createNew(`dish`,customer.favoriteDish); // create and display a new dish
 
                             timer = 0;
                         }
@@ -150,6 +142,7 @@ function draw() {
                         // when waiter arrives to the interaction coordinates of the dish
                         if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
                             dishes[0].status = `isTakenByWaiter`;
+                            waiter.status = `isHoldingADish`;
                         }
 
                         if(dishes[0].status === `isTakenByWaiter`) {
@@ -158,6 +151,7 @@ function draw() {
                                 if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
                                     if(customer.x === table.chairX && customer.y === table.chairY && dishes[0].name === customer.favoriteDish.name) { // check if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
                                         dishes[0].status = `isLaidOnTheRightTable`;
+                                        waiter.status = `isAvailable`;
                                         console.log(`exactly the right table for this dish`);
                                         addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
                                         dishes[0].interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
@@ -201,20 +195,7 @@ function draw() {
         });
     } else {
         // create firt customer
-        var customerSpotAvailability; // DRY?
-        var customerSpotAvailabilityIndex;
-        lobby.customersSpots.forEach(function(spot) { // find the first customer spot available in the lobby
-            if(!customerSpotAvailability) {
-                if(spot.available === true) {
-                    customerSpotAvailability = true;
-                    customerSpotAvailabilityIndex = lobby.customersSpots.indexOf(spot);
-                    lobby.customersSpots[customerSpotAvailabilityIndex].available = false; // spot no longer available
-                    customers.push(new Customer()); // create customer
-                    pushToInteractivesElements(customers);
-                    addToJournal(`customers`,spot.x,spot.y); // had the customer lobby spot destination in the journal
-                }
-            }
-        });
+        createNew(`customer`);
     }
 }
 
@@ -258,9 +239,49 @@ function drawArray(arrayName, array, journalArray) {
 }
 
 
+// function to create customer
+function createNew(componentName, extra) { // extra if for dish only
+    var availableSpot = null;
+    var availableSpotIndex = null;
+
+    function reserveAndDefineAvailableSpotIndex(array) { // reserve and define availableSpotIndex var
+        array.forEach(function(spot) { // find the first customer spot available in the lobby
+            if(!availableSpot) {
+                if(spot.available === true) {
+                    availableSpot = true;
+                    availableSpotIndex = array.indexOf(spot);
+                    array[availableSpotIndex].available = false; // spot no longer available
+                }
+            }
+        });
+    }
+
+    switch(componentName) {
+        case `customer`:
+            reserveAndDefineAvailableSpotIndex(lobby.customersSpots);
+
+            customers.push(new Customer()); // create customer
+            pushToInteractivesElements(customers);
+            addToJournal(`customers`,lobby.customersSpots[availableSpotIndex].x,lobby.customersSpots[availableSpotIndex].y); // had the customer lobby spot destination in the journal
+            break;
+        case `dish`:
+            reserveAndDefineAvailableSpotIndex(servingHatch.dishesSpots);
+            
+            dishes.push(new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, extra));
+            pushToInteractivesElements(dishes);            
+            break;
+    }
+    
+    // if availability is still false, it means all spots are taken: game over
+    if(!availableSpot) { 
+        gameover = true;
+    }
+}
+
+
 // functions to update journals
-function addToJournal(component,x,y) {
-    switch(component) {
+function addToJournal(componentName,x,y) {
+    switch(componentName) {
         case `waiter`:
             waiterJournal.push({x: x, y:y});
             break;
@@ -271,11 +292,11 @@ function addToJournal(component,x,y) {
             dishesJournal.push({x: x, y:y});
             break;
     }
-    console.log(`1 event added to the ${component} journal`);
+    console.log(`1 event added to the ${componentName} journal`);
 }
 
-function removeFromJournal(component) {
-    switch(component) {
+function removeFromJournal(componentName) {
+    switch(componentName) {
         case `waiter`:
             waiterJournal.shift();
             break;
@@ -286,7 +307,7 @@ function removeFromJournal(component) {
             dishesJournal.shift();
             break;
     }
-    console.log(`1 event removed from the ${component} journal`);
+    console.log(`1 event removed from the ${componentName} journal`);
 }
 
 
