@@ -1,11 +1,12 @@
 class DynamicComponent extends Component {
-    constructor(w,h,x,y,iX,iY,name,status) {
+    constructor(w,h,x,y,iX,iY,id,name,status) {
         super(w,h,x,y,iX,iY);
+        this.id = id;
         this.name = name;
         this.status = status;
     }
 
-    moveTo(component,destinationX,destinationY) {
+    moveTo(component,id,destinationX,destinationY) {
         var stepWidth = 10;
 
         // if component position closer than stepWidth value, then update position and finish moveTo
@@ -13,7 +14,7 @@ class DynamicComponent extends Component {
             // interaction destination reached, and removed from array of destinations
             this.x = destinationX;
             this.y = destinationY;
-            removeFromJournal(component);
+            removeFromJournal(component,id);
         } else {
             // interaction destination not reached yet, updating x and y component
             if(Math.abs(destinationX-this.x) >= stepWidth) {
@@ -59,7 +60,7 @@ class DynamicComponent extends Component {
                 destinationY = this.y;
             }
 
-            this.moveTo(this.name,destinationX,destinationY);
+            this.moveTo(this.name,this.id,destinationX,destinationY);
             console.log(`${this.name} follows ${component.name} and moves toward him`);
         }
     }
