@@ -77,15 +77,17 @@ function draw() {
                         addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chair coordinates
                         customers[0].status = `isSeating`;
                     }
-                })
+                });
                 break;
             
             // 4. he seats at the table
             case `isSeating`:
                 // when the customer reaches his chair
-                if(customers[0].x === tables[0].chairX && customers[0].y === tables[0].chairY) {
-                    customers[0].status = `isReadingTheMenu`;
-                } 
+                tables.forEach(function (table) {
+                    if(customers[0].x === table.chairX && customers[0].y === table.chairY) {
+                        customers[0].status = `isReadingTheMenu`;
+                    }
+                });
                 break;
             
             // 5: he reads the menu
@@ -105,9 +107,11 @@ function draw() {
                 customers[0].callWaiter();
 
                 // if the waiter reaches the customer table
-                if(waiter.x === tables[0].interactionX && waiter.y === tables[0].interactionY && customers[0].x === tables[0].chairX && customers[0].y === tables[0].chairY) {
-                    customers[0].status = `isWaitingForTheDish`;
-                }
+                tables.forEach(function (table) {
+                    if(waiter.x === table.interactionX && waiter.y === table.interactionY && customers[0].x === table.chairX && customers[0].y === table.chairY) {
+                        customers[0].status = `isWaitingForTheDish`;
+                    }
+                });
                 break;
             
             // 7: once ordered, he waits for the dish
@@ -148,6 +152,7 @@ function draw() {
                                     dishes[0].status = `isLaidOnTheRightTable`;
                                     console.log(`exactly the right table for this dish`);
                                     addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
+                                    customers[0].status = `isEating`;
                                 } else {
                                     console.log(`not the right table for this dish`);
                                 }
@@ -155,17 +160,12 @@ function draw() {
                         });
                         dishes[0].follow(waiter,50);
                     }
-
-                    // when the plate is in front of the customer
-                    if(dishes[0].x === tables[0].dishX && dishes[0].y === tables[0].dishY) {
-                        customers[0].status = `isEating`;
-                    } 
                 }
                 break;
             
             // 8: once served, he eats
             case `isEating`:
-                if(timer <= 300) {
+                if(timer <= 350) {
                     timer++;
                 } else { // once dish eaten, the customer pays and leaves
                     dishes[0].status = `isEmpty`;
