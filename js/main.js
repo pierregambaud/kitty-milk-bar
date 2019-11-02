@@ -8,8 +8,8 @@ let interactiveElements = [];
 let waiterJournal = [];
 let customersJournal = [];
 let dishesJournal = [];
-let timer = 0;
 let gameover;
+let timer = 0;
 let money = 0;
 
 const canvas = document.getElementById('game-board');
@@ -120,7 +120,7 @@ function draw() {
                         var dishSpotAvailability;
                         servingHatch.dishesSpots.forEach(function(spot) { // find the first dish spot available on the serving hatch
                             if(!dishSpotAvailability) {
-                                if(spot.dish === null) {
+                                if(spot.available === true) {
                                     dishSpotAvailability = true;
                                     dishes.push(new Dish(spot.x, spot.y, customers[0].favoriteDish));
                                     pushToInteractivesElements(dishes);
@@ -129,9 +129,9 @@ function draw() {
                         });
 
                         if(!dishSpotAvailability) { // if availability is still false, it means all spots are taken: game over
-                            console.log(`game over`);
+                            gameover = true;
                         }
-                        
+
                         timer = 0;
                     }
                 } else {
