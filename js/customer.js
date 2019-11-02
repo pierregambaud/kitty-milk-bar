@@ -1,6 +1,6 @@
 class Customer extends DynamicComponent {
     constructor() {
-        super(40,40,W/6,H/2,40+W/6+150,H/2,`customer`, `isEnteringTheRestaurant`);
+        super(40,40,0,H/2,40+W/6+150,H/2,`customer`, `isEnteringTheRestaurant`);
         this.favoriteDish = this.chooseDish();
     }
 

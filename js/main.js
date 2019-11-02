@@ -57,13 +57,18 @@ function draw() {
             switch(customer.status) {
                 // 1: he arrives on the red lobby
                 case `isEnteringTheRestaurant`: 
-                    customer.status = `isStandingInLine`;
+                    // if the customer reaches his spot in the lobby
+                    lobby.customersSpots.forEach(function(spot) {
+                        if(customer.x === spot.x && customer.y === spot.y) {
+                            customer.status = `isStandingInLine`;
+                        }
+                    });
                     break;
                 
                 // 2. he waits for the waiter to seat him
                 case `isStandingInLine`:
-                    // if waiter walks in the interaction zone of the lobby
-                    if(waiter.x === lobby.interactionX && waiter.y === lobby.interactionY) {
+                    // if waiter walks in the interaction zone of the customer
+                    if(waiter.x === customer.interactionX && waiter.y === customer.interactionY) {
                         customer.status = `isFollowingTheWaiter`;
                     }
                     break;
@@ -178,17 +183,32 @@ function draw() {
                 
                 // 9: customer is leaving
                 case `isLeavingRestaurant`:
-                    console.log('customer leaves table');
-                    if(customer.x === -50 && customer.y === -50) {
+                    // if customer has left the canvas visible area, means he's gone
+                    if(Math.sign(customer.x) === -1 && Math.sign(customer.y) === -1) {
                         customer.status = `isGone`;
-                        removeFromJournal();
-                    } 
+                    }
                     break;
                 
                 // 10: the money is collected and the table is cleaned by the 
                 case `isGone`:
                     console.log('customer is gone');
                     break; 
+            }
+        });
+    } else {
+        // create firt customer
+        var customerSpotAvailability; // DRY?
+        var customerSpotAvailabilityIndex;
+        lobby.customersSpots.forEach(function(spot) { // find the first customer spot available in the lobby
+            if(!customerSpotAvailability) {
+                if(spot.available === true) {
+                    customerSpotAvailability = true;
+                    customerSpotAvailabilityIndex = lobby.customersSpots.indexOf(spot);
+                    lobby.customersSpots[customerSpotAvailabilityIndex].available = false; // spot no longer available
+                    customers.push(new Customer()); // create customer
+                    pushToInteractivesElements(customers);
+                    addToJournal(`customers`,spot.x,spot.y); // had the customer lobby spot destination in the journal
+                }
             }
         });
     }
@@ -203,7 +223,13 @@ canvas.addEventListener('click', function(event) {
 
     // check if a validated interactive element has been clicked on
     function checkInteration(component,x,y) {
-        if(x < component.surfaceRight && x > component.surfaceLeft && y < component.surfaceTop && y > component.surfaceBottom) {
+        // defines interactive area for each component based on its actual property
+        var surfaceTop = component.y + component.h;
+        var surfaceRight = component.x + component.w;
+        var surfaceBottom = component.y - component.h;
+        var surfaceLeft = component.x - component.w;
+
+        if(x < surfaceRight && x > surfaceLeft && y < surfaceTop && y > surfaceBottom) {
             addToJournal(`waiter`, component.interactionX, component.interactionY);
         }
     }
@@ -285,15 +311,12 @@ function startGame() {
     servingHatch = new ServingHatch();
 
     // fill each component array
-    customers.push(new Customer());
     tables.push(new Table(W/4, H/5));
     tables.push(new Table(3*W/4, H/5));
     tables.push(new Table(W/4, 4*H/5));
     tables.push(new Table(3*W/4, 4*H/5));
 
     // fill interactiveElements array
-    interactiveElements.push(waiter);
-    interactiveElements.push(lobby);
     pushToInteractivesElements(customers);
     pushToInteractivesElements(tables);
     

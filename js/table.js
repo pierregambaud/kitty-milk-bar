@@ -1,7 +1,7 @@
 class Table extends Component {
     constructor(x,y) {
         var iY;
-        (y>H/2) ? iY = y-W/6/2-80 : iY = y+W/6/2+80;
+        (y>H/2) ? iY = y-W/6/2-80 : iY = y+W/6/2+80; // personalize interaction Y according to table location
 
         super(W/6,W/6,x,y,x,iY);
         this.chairX = x - W/7;

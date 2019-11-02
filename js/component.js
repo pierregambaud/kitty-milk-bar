@@ -1,14 +1,10 @@
 class Component {    
     constructor(w,h,x,y,iX,iY) {
-        this.w = w;
-        this.h = h;
-        this.x = x;
-        this.y = y;
-        this.interactionX = iX;
-        this.interactionY = iY;
-        this.surfaceTop = this.y + this.h;
-        this.surfaceRight = this.x + this.w;
-        this.surfaceBottom = this.y - this.h;
-        this.surfaceLeft = this.x - this.w;
+        this.w = Math.floor(w);
+        this.h = Math.floor(h);
+        this.x = Math.floor(x);
+        this.y = Math.floor(y);
+        this.interactionX = Math.floor(iX);
+        this.interactionY = Math.floor(iY);
     }
 }
