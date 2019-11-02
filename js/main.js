@@ -52,143 +52,145 @@ function draw() {
 
     // ******** CUSTOMER JOURNEY ********
     // **********************************
-    if(customers[0]) {
-        switch(customers[0].status) {
-            // 1: he arrives on the red lobby
-            case `isEnteringTheRestaurant`: 
-                customers[0].status = `isStandingInLine`;
-                break;
-            
-            // 2. he waits for the waiter to seat him
-            case `isStandingInLine`:
-                // if waiter walks in the interaction zone of the lobby
-                if(waiter.x === lobby.interactionX && waiter.y === lobby.interactionY) {
-                    customers[0].status = `isFollowingTheWaiter`;
-                }
-                break;
-            
-            // 3. he follows the waiter
-            case `isFollowingTheWaiter`:
-                customers[0].follow(waiter,100);
+    if(customers.length !== 0) { // if there is a least one customer
+        customers.forEach(function(customer) {
+            switch(customer.status) {
+                // 1: he arrives on the red lobby
+                case `isEnteringTheRestaurant`: 
+                    customer.status = `isStandingInLine`;
+                    break;
+                
+                // 2. he waits for the waiter to seat him
+                case `isStandingInLine`:
+                    // if waiter walks in the interaction zone of the lobby
+                    if(waiter.x === lobby.interactionX && waiter.y === lobby.interactionY) {
+                        customer.status = `isFollowingTheWaiter`;
+                    }
+                    break;
+                
+                // 3. he follows the waiter
+                case `isFollowingTheWaiter`:
+                    customer.follow(waiter,100);
 
-                // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
-                tables.forEach(function (table) {
-                    if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
-                        addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chair coordinates
-                        customers[0].status = `isSeating`;
-                    }
-                });
-                break;
-            
-            // 4. he seats at the table
-            case `isSeating`:
-                // when the customer reaches his chair
-                tables.forEach(function (table) {
-                    if(customers[0].x === table.chairX && customers[0].y === table.chairY) {
-                        customers[0].status = `isReadingTheMenu`;
-                    }
-                });
-                break;
-            
-            // 5: he reads the menu
-            case `isReadingTheMenu`:
-                // after 5 seconds, call the waiter
-                if(timer <= 300) {
-                    timer++;
-                } else { 
-                    customers[0].status = `isWaitingToOrder`;
-                    timer = 0;
-                };
-                break;
-            
-            // 6: once decided, he calls the waiter to order
-            case `isWaitingToOrder`:
-                // display "call waiter" notification
-                customers[0].callWaiter();
-
-                // if the waiter reaches the customer table
-                tables.forEach(function (table) {
-                    if(waiter.x === table.interactionX && waiter.y === table.interactionY && customers[0].x === table.chairX && customers[0].y === table.chairY) {
-                        customers[0].status = `isWaitingForTheDish`;
-                    }
-                });
-                break;
-            
-            // 7: once ordered, he waits for the dish
-            case `isWaitingForTheDish`:  
-                // transmit to the kitchen the order
-                if(dishes.length === 0) {
+                    // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
+                    tables.forEach(function (table) {
+                        if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
+                            addToJournal(`customers`,table.chairX,table.chairY); // update the customers journal with the chair coordinates
+                            customer.status = `isSeating`;
+                        }
+                    });
+                    break;
+                
+                // 4. he seats at the table
+                case `isSeating`:
+                    // when the customer reaches his chair
+                    tables.forEach(function (table) {
+                        if(customer.x === table.chairX && customer.y === table.chairY) {
+                            customer.status = `isReadingTheMenu`;
+                        }
+                    });
+                    break;
+                
+                // 5: he reads the menu
+                case `isReadingTheMenu`:
+                    // after 5 seconds, call the waiter
                     if(timer <= 300) {
                         timer++;
-                    } else { // display the dish
-                        var dishSpotAvailability;
-                        servingHatch.dishesSpots.forEach(function(spot) { // find the first dish spot available on the serving hatch
-                            if(!dishSpotAvailability) {
-                                if(spot.available === true) {
-                                    dishSpotAvailability = true;
-                                    dishes.push(new Dish(spot.x, spot.y, customers[0].favoriteDish));
-                                    pushToInteractivesElements(dishes);
-                                }
-                            }
-                        });
+                    } else { 
+                        customer.status = `isWaitingToOrder`;
+                        timer = 0;
+                    };
+                    break;
+                
+                // 6: once decided, he calls the waiter to order
+                case `isWaitingToOrder`:
+                    // display "call waiter" notification
+                    customer.callWaiter();
 
-                        if(!dishSpotAvailability) { // if availability is still false, it means all spots are taken: game over
-                            gameover = true;
+                    // if the waiter reaches the customer table
+                    tables.forEach(function (table) {
+                        if(waiter.x === table.interactionX && waiter.y === table.interactionY && customer.x === table.chairX && customer.y === table.chairY) {
+                            customer.status = `isWaitingForTheDish`;
+                        }
+                    });
+                    break;
+                
+                // 7: once ordered, he waits for the dish
+                case `isWaitingForTheDish`:  
+                    // transmit to the kitchen the order
+                    if(dishes.length === 0) {
+                        if(timer <= 300) {
+                            timer++;
+                        } else { // display the dish
+                            var dishSpotAvailability;
+                            servingHatch.dishesSpots.forEach(function(spot) { // find the first dish spot available on the serving hatch
+                                if(!dishSpotAvailability) {
+                                    if(spot.available === true) {
+                                        dishSpotAvailability = true;
+                                        dishes.push(new Dish(spot.x, spot.y, customer.favoriteDish));
+                                        pushToInteractivesElements(dishes);
+                                    }
+                                }
+                            });
+
+                            if(!dishSpotAvailability) { // if availability is still false, it means all spots are taken: game over
+                                gameover = true;
+                            }
+
+                            timer = 0;
+                        }
+                    } else {
+                        // when waiter arrives to the interaction coordinates of the dish
+                        if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
+                            dishes[0].status = `isTakenByWaiter`;
                         }
 
-                        timer = 0;
-                    }
-                } else {
-                    // when waiter arrives to the interaction coordinates of the dish
-                    if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
-                        dishes[0].status = `isTakenByWaiter`;
-                    }
-
-                    if(dishes[0].status === `isTakenByWaiter`) {
-                        // when waiter arrives to the interaction coordinates of one of the tables
-                        tables.forEach(function (table) {
-                            if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
-                                if(customers[0].x === table.chairX && customers[0].y === table.chairY && dishes[0].name === customers[0].favoriteDish.name) { // check if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
-                                    dishes[0].status = `isLaidOnTheRightTable`;
-                                    console.log(`exactly the right table for this dish`);
-                                    addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
-                                    customers[0].status = `isEating`;
-                                } else {
-                                    console.log(`not the right table for this dish`);
+                        if(dishes[0].status === `isTakenByWaiter`) {
+                            // when waiter arrives to the interaction coordinates of one of the tables
+                            tables.forEach(function (table) {
+                                if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
+                                    if(customer.x === table.chairX && customer.y === table.chairY && dishes[0].name === customer.favoriteDish.name) { // check if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
+                                        dishes[0].status = `isLaidOnTheRightTable`;
+                                        console.log(`exactly the right table for this dish`);
+                                        addToJournal(`dishes`,table.dishX,table.dishY); // update the dishes journal with the dish coordinates
+                                        customer.status = `isEating`;
+                                    } else {
+                                        console.log(`not the right table for this dish`);
+                                    }
                                 }
-                            }
-                        });
-                        dishes[0].follow(waiter,50);
+                            });
+                            dishes[0].follow(waiter,50);
+                        }
                     }
-                }
-                break;
-            
-            // 8: once served, he eats
-            case `isEating`:
-                if(timer <= 350) {
-                    timer++;
-                } else { // once dish eaten, the customer pays and leaves
-                    dishes[0].status = `isEmpty`;
-                    customers[0].status = `isLeavingRestaurant`;
-                    addToJournal(`customers`,-50,-50);
-                    timer = 0;
-                };
-                break;
-            
-            // 9: customer is leaving
-            case `isLeavingRestaurant`:
-                console.log('customer leaves table');
-                if(customers[0].x === -50 && customers[0].y === -50) {
-                    customers[0].status = `isGone`;
-                    removeFromJournal();
-                } 
-                break;
-            
-            // 10: the money is collected and the table is cleaned by the 
-            case `isGone`:
-                console.log('customer is gone');
-                break; 
-        }
+                    break;
+                
+                // 8: once served, he eats
+                case `isEating`:
+                    if(timer <= 350) {
+                        timer++;
+                    } else { // once dish eaten, the customer pays and leaves
+                        dishes[0].status = `isEmpty`;
+                        customer.status = `isLeavingRestaurant`;
+                        addToJournal(`customers`,-50,-50);
+                        timer = 0;
+                    };
+                    break;
+                
+                // 9: customer is leaving
+                case `isLeavingRestaurant`:
+                    console.log('customer leaves table');
+                    if(customer.x === -50 && customer.y === -50) {
+                        customer.status = `isGone`;
+                        removeFromJournal();
+                    } 
+                    break;
+                
+                // 10: the money is collected and the table is cleaned by the 
+                case `isGone`:
+                    console.log('customer is gone');
+                    break; 
+            }
+        });
     }
 }
 
