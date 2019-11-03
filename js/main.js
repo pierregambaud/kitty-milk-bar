@@ -80,6 +80,8 @@ function draw() {
                 case `isFollowingTheWaiter`:
                     customer.follow(waiter,100);
                     lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
+                    updateLobbySpots();
+
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
@@ -192,10 +194,6 @@ function draw() {
                     break; 
             }
         });
-    } else {
-        // create firt customer
-        createNew(`customer`);
-        createNew(`customer`);
     }
 }
 
@@ -224,13 +222,14 @@ canvas.addEventListener('click', function(event) {
 
 
 // function to draw arrays
-function drawArray(arrayName, array, journalArray) {
+function drawArray(arrayName, array, journalArray) { // ex values: `customers`, customers, customersJournal
     if (journalArray.length !== 0) {
-        journalArray.forEach(function(journalEntry){ // FIXME later
+        journalArray.forEach(function(journalEntry){
             array.forEach(function(el) {
-                if(el.id === journalEntry.id){
+                if(el.id === journalEntry.id){ // if there is a journal entry for the element
                     el.moveTo(arrayName, el.id, journalEntry.x, journalEntry.y);
-                    console.log(arrayName, el.id, journalEntry.x, journalEntry.y);
+                    el.draw();
+                } else { // if the journal entry does not concern the el, draw it anyway
                     el.draw();
                 }
             });
@@ -243,38 +242,44 @@ function drawArray(arrayName, array, journalArray) {
 }
 
 
-// function to create customer
-function createNew(componentName, extra) { // extra if for dish only
-    var availableSpot = null;
-    var availableSpotIndex = null;
+// ********* QUEUE FOR LOBBY AND SERVING HATCH *********
+// *****************************************************
+var availableSpot = null;
+var availableSpotIndex = null;
 
-    function reserveAndDefineAvailableSpotIndex(array) { // reserve and define availableSpotIndex var
-        array.forEach(function(spot) { // find the first customer spot available in the lobby
-            if(!availableSpot) {
-                if(spot.available === true) {
-                    availableSpot = true;
-                    availableSpotIndex = array.indexOf(spot);
-                    array[availableSpotIndex].available = false; // spot no longer available
-                }
+function reserveAndDefineAvailableSpotIndex(array) { // reserve and define availableSpotIndex var
+    array.forEach(function(spot) { // find the first customer spot available in the lobby
+        if(!availableSpot) {
+            if(spot.available === true) {
+                availableSpot = true;
+                availableSpotIndex = array.indexOf(spot);
+                array[availableSpotIndex].available = false; // spot no longer available
             }
-        });
-    }
+        }
+    });
+}
 
+function multiPush(array1, array2, elementToPush) {
+    element = elementToPush;
+    array1.push(element);
+    array2.push(element);
+}
+
+// function to create customer & dish
+function createNew(componentName, extra) { // extra (dish) for dish only
     switch(componentName) {
         case `customer`:
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots);
 
             numberOfCustomersCreated++;
-            customers.push(new Customer(numberOfCustomersCreated)); // create customer
-            pushToInteractivesElements(customers);
+            multiPush(customers,interactiveElements,new Customer(numberOfCustomersCreated)); // create customer and push it to customers & interactiveElements
             addToJournal(`customers`, numberOfCustomersCreated, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y); // add the customer lobby spot destination in the journal
             break;
         case `dish`:
             reserveAndDefineAvailableSpotIndex(servingHatch.dishesSpots);
             
             numberOfDishesCreated++;
-            dishes.push(new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, extra)); // create dish
-            pushToInteractivesElements(dishes);            
+            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, extra)); // create dish and push it to dishes & interactiveElements         
             break;
     }
     
@@ -282,8 +287,28 @@ function createNew(componentName, extra) { // extra if for dish only
     if(!availableSpot) { 
         gameover = true;
     }
+
+    availableSpot = null;
+    availableSpotIndex = null;
 }
 
+// function to update customer position in the lobby
+function updateLobbySpots() {
+    customers.forEach(function(customer) {
+        if (customer.status === "isStandingInLine") {
+            reserveAndDefineAvailableSpotIndex(lobby.customersSpots); 
+            addToJournal(`customers`, customer.id, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y); // add the customer lobby spot destination in the journal
+            lobby.customersSpots[availableSpotIndex+1].available = true; // the previous spot is now available
+        }
+    });
+
+    availableSpot = null;
+    availableSpotIndex = null;
+}
+
+
+// ********* JOURNALS *********
+// ****************************
 
 // functions to update journals
 function addToJournal(componentName,id,x,y) {
@@ -346,6 +371,7 @@ function startGame() {
     waiter = new Waiter();
     lobby = new Lobby();
     servingHatch = new ServingHatch();
+    createNew(`customer`);
 
     // fill each component array
     tables.push(new Table(W/4, H/5));
@@ -354,7 +380,6 @@ function startGame() {
     tables.push(new Table(3*W/4, 4*H/5));
 
     // fill interactiveElements array
-    pushToInteractivesElements(customers);
     pushToInteractivesElements(tables);
     
     requestAnimationFrame(animLoop);
