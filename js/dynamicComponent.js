@@ -15,6 +15,7 @@ class DynamicComponent extends Component {
             this.x = destinationX;
             this.y = destinationY;
             removeFromJournal(componentName,id);
+            console.log(`removeFromJournal`,componentName,id);
         } else {
             // interaction destination not reached yet, updating x and y component
             if(Math.abs(destinationX-this.x) >= stepWidth) {

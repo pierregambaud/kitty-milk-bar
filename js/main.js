@@ -87,6 +87,7 @@ function draw() {
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
                             addToJournal(`customers`,customer.id,table.chairX,table.chairY); // update the customers journal with the chair coordinates
+                            console.log(`customers`,customer.id,table.chairX,table.chairY);
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
                             customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
@@ -228,6 +229,7 @@ function drawArray(arrayName, array, journalArray) { // ex values: `customers`, 
             array.forEach(function(el) {
                 if(el.id === journalEntry.id){ // if there is a journal entry for the element
                     el.moveTo(arrayName, el.id, journalEntry.x, journalEntry.y);
+                    console.log(arrayName, el.id, journalEntry.x, journalEntry.y);
                     el.draw();
                 } else { // if the journal entry does not concern the el, draw it anyway
                     el.draw();
@@ -329,7 +331,7 @@ function removeFromJournal(componentName, id) {
     function removeIdFrom(array) {
         array.forEach(function(el) {
             if(el.id === id) {
-                array.splice(array.indexOf(id),1); // remove the ID element
+                array.splice(array.indexOf(el),1); // remove the element from the array if id of the element and id from the journal match
             };
         });
     }
@@ -371,6 +373,7 @@ function startGame() {
     waiter = new Waiter();
     lobby = new Lobby();
     servingHatch = new ServingHatch();
+    createNew(`customer`);
     createNew(`customer`);
 
     // fill each component array
