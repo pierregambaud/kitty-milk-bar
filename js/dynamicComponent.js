@@ -15,7 +15,6 @@ class DynamicComponent extends Component {
             this.x = destinationX;
             this.y = destinationY;
             removeFromJournal(componentName,id);
-            console.log(`removeFromJournal`,componentName,id);
         } else {
             // interaction destination not reached yet, updating x and y component
             if(Math.abs(destinationX-this.x) >= stepWidth) {
@@ -45,7 +44,6 @@ class DynamicComponent extends Component {
         var destinationY;
 
         if(Math.abs(component.x-this.x) < distanceBetweenComponents && Math.abs(component.y-this.y) < distanceBetweenComponents) {
-            console.log(`${this.name} follows ${component.name} but waits for ${component.name} to move`);
         } else {
             // determine value for destinationX
             if(Math.abs(component.x-this.x) >= distanceBetweenComponents) {
@@ -62,7 +60,6 @@ class DynamicComponent extends Component {
             }
 
             this.moveTo(component,this.id,destinationX,destinationY);
-            console.log(`${this.name} follows ${component.name} and moves toward him`);
         }
     }
 }

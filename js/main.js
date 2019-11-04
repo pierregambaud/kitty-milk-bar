@@ -61,7 +61,7 @@ function draw() {
                 case `isEnteringTheRestaurant`: 
                     // if the customer reaches his spot in the lobby
                     lobby.customersSpots.forEach(function(spot) {
-                        if(spot.available && customer.x === spot.x && customer.y === spot.y) {
+                        if(customer.x === spot.x && customer.y === spot.y) {
                             customer.status = `isStandingInLine`;
                         }
                     });
@@ -73,21 +73,20 @@ function draw() {
                     if(waiter.x === customer.interactionX && waiter.y === customer.interactionY && waiter.status === "isAvailable") {
                         customer.status = `isFollowingTheWaiter`;
                         waiter.status = `isTakingCustomerToATable`;
+
+                        lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
+                        updateLobbySpots(); // update customers positions in the lobby
                     }
                     break;
                 
                 // 3. he follows the waiter
                 case `isFollowingTheWaiter`:
                     customer.follow(waiter,100);
-                    lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
-                    updateLobbySpots();
-
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
                             addToJournal(`customers`,customer.id,table.chairX,table.chairY); // update the customers journal with the chair coordinates
-                            console.log(`customers`,customer.id,table.chairX,table.chairY);
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
                             customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
@@ -229,7 +228,6 @@ function drawArray(arrayName, array, journalArray) { // ex values: `customers`, 
             array.forEach(function(el) {
                 if(el.id === journalEntry.id){ // if there is a journal entry for the element
                     el.moveTo(arrayName, el.id, journalEntry.x, journalEntry.y);
-                    console.log(arrayName, el.id, journalEntry.x, journalEntry.y);
                     el.draw();
                 } else { // if the journal entry does not concern the el, draw it anyway
                     el.draw();
@@ -300,12 +298,12 @@ function updateLobbySpots() {
         if (customer.status === "isStandingInLine") {
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots); 
             addToJournal(`customers`, customer.id, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y); // add the customer lobby spot destination in the journal
+            console.log(`customers`, customer.id, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y)
             lobby.customersSpots[availableSpotIndex+1].available = true; // the previous spot is now available
         }
+        availableSpot = null;
+        availableSpotIndex = null;
     });
-
-    availableSpot = null;
-    availableSpotIndex = null;
 }
 
 
