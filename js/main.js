@@ -10,8 +10,9 @@ let interactiveElements = [];
 let waiterJournal = [];
 let customersJournal = [];
 let dishesJournal = [];
+let timedEventsJournal = [];
 let gameover;
-let timer = 0;
+let frames = 0;
 let money = 0;
 
 const canvas = document.getElementById('game-board');
@@ -107,13 +108,24 @@ function draw() {
                 
                 // 5: he reads the menu
                 case `isReadingTheMenu`:
-                    // after 5 seconds, call the waiter
-                    if(timer <= 300) {
-                        timer++;
-                    } else { 
-                        customer.status = `isWaitingToOrder`;
-                        timer = 0;
-                    };
+                    // after 300 frames, call the waiter
+                    if(timedEventsJournal.length !== 0) {
+                        var countLap = 0;
+                        timedEventsJournal.forEach(function(timedEvent) {
+                            if(timedEvent.id === customer.id) {
+                                if(timedEvent.frames === frames) {
+                                    customer.status = `isWaitingToOrder`;
+                                    timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
+                                    countLap--;
+                                }
+                            } else if(countLap === timedEventsJournal.length) {
+                                timedEventsJournal.push({id: customer.id, frames: frames+300});
+                                console.log(`foo`);
+                            }
+                        });
+                    } else {
+                        timedEventsJournal.push({id: customer.id, frames: frames+300});
+                    }
                     break;
                 
                 // 6: once decided, he calls the waiter to order
@@ -135,12 +147,22 @@ function draw() {
                     waiter.status = `isAvailable`;
                     // transmit to the kitchen the order
                     if(dishes.length === 0) {
-                        if(timer <= 300) {
-                            timer++;
-                        } else { // display the dish
-                            createNew(`dish`,customer.favoriteDish); // create and display a new dish
-
-                            timer = 0;
+                        if(timedEventsJournal.length !== 0) {
+                            var countLap = 0;
+                            timedEventsJournal.forEach(function(timedEvent) {
+                                if(timedEvent.id === customer.id) {
+                                    if(timedEvent.frames === frames) {
+                                        createNew(`dish`,customer.favoriteDish); // create and display a new dish
+                                        timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
+                                        countLap--;
+                                    }
+                                } else if(countLap === timedEventsJournal.length) {
+                                    timedEventsJournal.push({id: customer.id, frames: frames+300});
+                                    console.log(`foo`);
+                                }
+                            });
+                        } else {
+                            timedEventsJournal.push({id: customer.id, frames: frames+300});
                         }
                     } else {
                         // when waiter arrives to the interaction coordinates of the dish
@@ -170,14 +192,25 @@ function draw() {
                 
                 // 8: once served, he eats
                 case `isEating`:
-                    if(timer <= 350) {
-                        timer++;
-                    } else { // once dish eaten, the customer pays and leaves
-                        dishes[0].status = `isEmpty`;
-                        customer.status = `isLeavingRestaurant`;
-                        addToJournal(`customers`, customer.id, -50, -50);
-                        timer = 0;
-                    };
+                    if(timedEventsJournal.length !== 0) {
+                        var countLap = 0;
+                        timedEventsJournal.forEach(function(timedEvent) {
+                            if(timedEvent.id === customer.id) {
+                                if(timedEvent.frames === frames) {
+                                    dishes[0].status = `isEmpty`;
+                                    customer.status = `isLeavingRestaurant`;
+                                    addToJournal(`customers`, customer.id, -50, -50);
+                                    timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
+                                    countLap--;
+                                }
+                            } else if(countLap === timedEventsJournal.length) {
+                                timedEventsJournal.push({id: customer.id, frames: frames+300});
+                                console.log(`foo`);
+                            }
+                        });
+                    } else {
+                        timedEventsJournal.push({id: customer.id, frames: frames+300});
+                    }
                     break;
                 
                 // 9: customer is leaving
@@ -349,7 +382,6 @@ function removeFromJournal(componentName, id) {
 
 
 // animations
-let frames = 0;
 function animLoop() {
     frames++;
 
