@@ -87,7 +87,7 @@ function draw() {
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
-                            addToJournal(`customers`,customer.id,table.chairX,table.chairY); // update the customers journal with the chair coordinates
+                            addToJournal(`customers`,customer.id,{x:table.chairX,y:table.chairY}); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
                             customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
@@ -101,18 +101,31 @@ function draw() {
                     // when the customer reaches his chair
                     tables.forEach(function (table) {
                         if(customer.x === table.chairX && customer.y === table.chairY) {
-                            customer.status = `isReadingTheMenu`;
+                            customer.status = `hasReceivedTheMenu`;
+                        }
+                    });
+                    break;
+
+                // 5: he receives the menu
+                case `hasReceivedTheMenu`:
+                    addToJournal(`events`, customer.id, {type:`isReadingTheMenu`,frames:frames+300}); // reads the menu for 300 frames
+                    customer.status = `isReadingTheMenu`;
+                    break;
+                
+                // 6: he reads the menu and then calls the waiter
+                case `isReadingTheMenu`:
+                    // after 300 frames, call the waiter
+                    timedEventsJournal.forEach(function(timedEvent) {
+                        if(timedEvent.id === customer.id && timedEvent.type === `isReadingTheMenu`) {
+                            if(timedEvent.frames === frames) {
+                                customer.status = `isWaitingToOrder`;
+                                removeFromJournal(`events`,timedEvent.id);
+                            }
                         }
                     });
                     break;
                 
-                // 5: he reads the menu
-                case `isReadingTheMenu`:
-                    // after 300 frames, call the waiter
-                    setEvent(300, customer, `isReadingTheMenu`);
-                    break;
-                
-                // 6: once decided, he calls the waiter to order
+                // 7: once decided, he calls the waiter to order
                 case `isWaitingToOrder`:
                     // display "call waiter" notification
                     customer.callWaiter();
@@ -120,18 +133,33 @@ function draw() {
                     // if the waiter reaches the customer table
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY && customer.x === table.chairX && customer.y === table.chairY) {
-                            customer.status = `isWaitingForTheDish`;
+                            customer.status = `isPlacingTheOrder`;
                             waiter.status = `isTakingTheCustomerOrder`;
                         }
                     });
                     break;
                 
-                // 7: once ordered, he waits for the dish
-                case `isWaitingForTheDish`:
+                // 8: once the waiter arrived, he places the order
+                case `isPlacingTheOrder`:
+                    addToJournal(`events`, customer.id, {type:`cookingTime`,frames:frames+300}); // the dish will be available in 300 frames
+                    customer.status = `isWaitingForTheDish`;
                     waiter.status = `isAvailable`;
-                    // transmit to the kitchen the order
+                    break;
+
+                // 9: once ordered, he waits for the dish
+                case `isWaitingForTheDish`:
+                    timedEventsJournal.forEach(function(timedEvent) {
+                        if(timedEvent.id === customer.id && timedEvent.type === `cookingTime`) {
+                            if(timedEvent.frames === frames) {
+                                createNew(`dish`,customer); // create and display a new dish
+                                removeFromJournal(`events`,timedEvent.id);
+                            }
+                        }
+                    });
+
                     if(dishes.length !== 0) {
                         dishes.forEach(function(dish) {
+
                             // when waiter arrives to the interaction coordinates of a dish
                             if(waiter.x === dish.interactionX && waiter.y === dish.interactionY) {
                                 dish.status = `isTakenByWaiter`;
@@ -145,48 +173,44 @@ function draw() {
                                         if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
                                             dish.status = `isLaidOnTheRightTable`;
                                             waiter.status = `isAvailable`;
-                                            addToJournal(`dishes`, dish.id, table.dishX, table.dishY); // update the dishes journal with the dish coordinates
+                                            addToJournal(`dishes`, dish.id,{x:table.dishX, y:table.dishY}); // update the dishes journal with the dish coordinates
                                             dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
                                             dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
-                                            customer.status = `isEating`;
+                                            customer.status = `isReceivingTheDish`;
                                         }
                                     }
                                 });
                                 dish.follow(waiter,50);
                             }
                         })
-                    } else {
-                        if(timedEventsJournal.length !== 0) {
-                            var isCookingTheDishNumberOfEvents = 0;
-                            var isWaitingForTheDishNumberOfCustomers = 0;
-
-                            customers.forEach(function(customer) { // calculate the number of Customers who are "Waiting for the dish"
-                                if(customer.status === `isWaitingForTheDish`) {
-                                    isWaitingForTheDishNumberOfCustomers++;
-                                }
-                            });
-
-                            timedEventsJournal.forEach(function(timedEvent) { // calculate the number of Events which are "Cook the food"
-                                if(timedEvent.type === `isCookingTheDish`) {
-                                    isCookingTheDishNumberOfEvents++;
-                                }
-                            });
-
-                            if(isCookingTheDishNumberOfEvents < isWaitingForTheDishNumberOfCustomers) {
-                                setEvent(300, customer, `isCookingTheDish`); // if no dish are 
-                            }
-                        } else {
-                            setEvent(300, customer, `isCookingTheDish`); // if no dish are 
-                        }
                     }
                     break;
                 
-                // 8: once served, he eats
+                // 10: he receives the dish and starts eating
+                case `isReceivingTheDish`:
+                    addToJournal(`events`, customer.id, {type:`isEating`,frames:frames+300}); // the dish will be available in 300 frames
+                    customer.status = `isEating`;
+                    break;
+
+                // 11: once served, he eats
                 case `isEating`:
-                    setEvent(300, customer, `isEating`);
+                    timedEventsJournal.forEach(function(timedEvent) {
+                        if(timedEvent.id === customer.id && timedEvent.type === `isEating`) {
+                            if(timedEvent.frames === frames) {
+                                dishes.forEach(function(dish) {
+                                    if(dish.id === timedEventsJournal.id) {
+                                        dish.status = `isEmpty`;
+                                    }
+                                })
+                                removeFromJournal(`events`,timedEvent.id);
+                                customer.status = `isLeavingRestaurant`;
+                                addToJournal(`customers`, customer.id, {x:-50, y:-50});
+                            }
+                        }
+                    });
                     break;
                 
-                // 9: customer is leaving
+                // 12: customer is leaving
                 case `isLeavingRestaurant`:
                     // if customer has left the canvas visible area, means he's gone
                     if(Math.sign(customer.x) === -1 && Math.sign(customer.y) === -1) {
@@ -194,7 +218,7 @@ function draw() {
                     }
                     break;
                 
-                // 10: the money is collected and the table is cleaned by the 
+                // 13: the money is collected and the table is cleaned by the 
                 case `isGone`:
                     // console.log('customer is gone');
                     break; 
@@ -218,7 +242,7 @@ canvas.addEventListener('click', function(event) {
         var surfaceLeft = component.x - component.w;
 
         if(x < surfaceRight && x > surfaceLeft && y < surfaceTop && y > surfaceBottom) {
-            addToJournal(`waiter`, waiter.id, component.interactionX, component.interactionY);
+            addToJournal(`waiter`, waiter.id, {x:component.interactionX, y:component.interactionY});
         }
     }
 
@@ -272,20 +296,20 @@ function multiPush(array1, array2, elementToPush) {
 }
 
 // function to create customer & dish
-function createNew(componentName, extra) { // extra (dish) for dish only
+function createNew(componentName, customer) { // customer for dish only (customer.favoriteDish && customer.id)
     switch(componentName) {
         case `customer`:
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots);
 
             numberOfCustomersCreated++;
             multiPush(customers,interactiveElements,new Customer(numberOfCustomersCreated)); // create customer and push it to customers & interactiveElements
-            addToJournal(`customers`, numberOfCustomersCreated, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y); // add the customer lobby spot destination in the journal
+            addToJournal(`customers`, numberOfCustomersCreated, {x:lobby.customersSpots[availableSpotIndex].x, y:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
             break;
         case `dish`:
             reserveAndDefineAvailableSpotIndex(servingHatch.dishesSpots);
             
             numberOfDishesCreated++;
-            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, extra)); // create dish and push it to dishes & interactiveElements         
+            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, customer.id, customer.favoriteDish)); // create dish and push it to dishes & interactiveElements         
             break;
     }
     
@@ -303,8 +327,7 @@ function updateLobbySpots() {
     customers.forEach(function(customer) {
         if (customer.status === "isStandingInLine") {
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots); 
-            addToJournal(`customers`, customer.id, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y); // add the customer lobby spot destination in the journal
-            console.log(`customers`, customer.id, lobby.customersSpots[availableSpotIndex].x, lobby.customersSpots[availableSpotIndex].y)
+            addToJournal(`customers`, customer.id, {x:lobby.customersSpots[availableSpotIndex].x, y:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
             lobby.customersSpots[availableSpotIndex+1].available = true; // the previous spot is now available
         }
         availableSpot = null;
@@ -317,24 +340,28 @@ function updateLobbySpots() {
 // ****************************
 
 // functions to update journals
-function addToJournal(componentName,id,x,y) {
+function addToJournal(componentName,idOfComponent,details) {
     switch(componentName) {
         case `waiter`:
-            waiterJournal.push({id:id, x:x, y:y});
+            waiterJournal.push({id:idOfComponent, x:details.x, y:details.y});
             break;
         case `customers`:
-            customersJournal.push({id:id, x:x, y:y});
+            customersJournal.push({id:idOfComponent, x:details.x, y:details.y});
             break;
         case `dishes`:
-            dishesJournal.push({id:id, x:x, y:y});
+            dishesJournal.push({id:idOfComponent, x:details.x, y:details.y});
+            break;
+        case `events`:
+            timedEventsJournal.push({id:idOfComponent, type:details.type, frames:details.frames});
+            console.log(`id:${idOfComponent}, type:${details.type}, frames:${details.frames}`)
             break;
     }
 }
 
-function removeFromJournal(componentName, id) {
+function removeFromJournal(componentName, idOfComponent) {
     function removeIdFrom(array) {
         array.forEach(function(el) {
-            if(el.id === id) {
+            if(el.id === idOfComponent) {
                 array.splice(array.indexOf(el),1); // remove the element from the array if id of the element and id from the journal match
             };
         });
@@ -350,41 +377,9 @@ function removeFromJournal(componentName, id) {
         case `dishes`:
             removeIdFrom(dishesJournal);
             break;
-    }
-}
-
-// function to fill timedEventsJournal
-function setEvent(duration, object, event) { // ex value : 300, customer.id, `isWaitingToOrder`
-    if(timedEventsJournal.length !== 0) {
-        var countLap = 0;
-        timedEventsJournal.forEach(function(timedEvent) {
-            if(timedEvent.id === object.id) {
-                console.log(`foo`);
-                if(timedEvent.frames === frames) {
-                    console.log(`bar`);
-                    switch(event) {
-                        case `isReadingTheMenu`:
-                            console.log(`baz`);
-                            object.status = `isWaitingToOrder`;
-                            break;
-                        case `isCookingTheDish`:
-                            createNew(`dish`,object.favoriteDish); // create and display a new dish
-                            break;
-                        case `isEating`:
-                            dishes[0].status = `isEmpty`;
-                            object.status = `isLeavingRestaurant`;
-                            addToJournal(`customers`, object.id, -50, -50);
-                            break;
-                    }
-                    timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
-                    countLap--;
-                }
-            } else if(countLap === timedEventsJournal.length) {
-                timedEventsJournal.push({type: event, id: object.id, frames: frames+duration});
-            }
-        });
-    } else {
-        timedEventsJournal.push({type: event, id: object.id, frames: frames+duration});
+        case `events`:
+            removeIdFrom(timedEventsJournal);
+            break;
     }
 }
 
@@ -412,7 +407,7 @@ function startGame() {
     lobby = new Lobby();
     servingHatch = new ServingHatch();
     createNew(`customer`);
-    createNew(`customer`);
+    // createNew(`customer`);
 
     // fill each component array
     tables.push(new Table(W/4, H/5));
