@@ -109,23 +109,7 @@ function draw() {
                 // 5: he reads the menu
                 case `isReadingTheMenu`:
                     // after 300 frames, call the waiter
-                    if(timedEventsJournal.length !== 0) {
-                        var countLap = 0;
-                        timedEventsJournal.forEach(function(timedEvent) {
-                            if(timedEvent.id === customer.id) {
-                                if(timedEvent.frames === frames) {
-                                    customer.status = `isWaitingToOrder`;
-                                    timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
-                                    countLap--;
-                                }
-                            } else if(countLap === timedEventsJournal.length) {
-                                timedEventsJournal.push({id: customer.id, frames: frames+300});
-                                console.log(`foo`);
-                            }
-                        });
-                    } else {
-                        timedEventsJournal.push({id: customer.id, frames: frames+300});
-                    }
+                    setEvent(300, customer, `isReadingTheMenu`);
                     break;
                 
                 // 6: once decided, he calls the waiter to order
@@ -146,71 +130,60 @@ function draw() {
                 case `isWaitingForTheDish`:
                     waiter.status = `isAvailable`;
                     // transmit to the kitchen the order
-                    if(dishes.length === 0) {
-                        if(timedEventsJournal.length !== 0) {
-                            var countLap = 0;
-                            timedEventsJournal.forEach(function(timedEvent) {
-                                if(timedEvent.id === customer.id) {
-                                    if(timedEvent.frames === frames) {
-                                        createNew(`dish`,customer.favoriteDish); // create and display a new dish
-                                        timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
-                                        countLap--;
+                    if(dishes.length !== 0) {
+                        dishes.forEach(function(dish) {
+                            // when waiter arrives to the interaction coordinates of a dish
+                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY) {
+                                dish.status = `isTakenByWaiter`;
+                                waiter.status = `isHoldingADish`;
+                            }
+                        
+                            if(dish.status === `isTakenByWaiter`) {
+                                // when waiter arrives to the interaction coordinates of one of the tables
+                                tables.forEach(function (table) {
+                                    if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
+                                        if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
+                                            dish.status = `isLaidOnTheRightTable`;
+                                            waiter.status = `isAvailable`;
+                                            addToJournal(`dishes`, dish.id, table.dishX, table.dishY); // update the dishes journal with the dish coordinates
+                                            dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
+                                            dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
+                                            customer.status = `isEating`;
+                                        }
                                     }
-                                } else if(countLap === timedEventsJournal.length) {
-                                    timedEventsJournal.push({id: customer.id, frames: frames+300});
-                                    console.log(`foo`);
-                                }
-                            });
-                        } else {
-                            timedEventsJournal.push({id: customer.id, frames: frames+300});
-                        }
+                                });
+                                dish.follow(waiter,50);
+                            }
+                        })
                     } else {
-                        // when waiter arrives to the interaction coordinates of the dish
-                        if(waiter.x === dishes[0].interactionX && waiter.y === dishes[0].interactionY) {
-                            dishes[0].status = `isTakenByWaiter`;
-                            waiter.status = `isHoldingADish`;
-                        }
+                        if(timedEventsJournal.length !== 0) {
+                            var isCookingTheDishNumberOfEvents = 0;
+                            var isWaitingForTheDishNumberOfCustomers = 0;
 
-                        if(dishes[0].status === `isTakenByWaiter`) {
-                            // when waiter arrives to the interaction coordinates of one of the tables
-                            tables.forEach(function (table) {
-                                if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
-                                    if(customer.x === table.chairX && customer.y === table.chairY && dishes[0].name === customer.favoriteDish.name) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
-                                        dishes[0].status = `isLaidOnTheRightTable`;
-                                        waiter.status = `isAvailable`;
-                                        addToJournal(`dishes`, dishes[0].id, table.dishX, table.dishY); // update the dishes journal with the dish coordinates
-                                        dishes[0].interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
-                                        dishes[0].interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
-                                        customer.status = `isEating`;
-                                    }
+                            customers.forEach(function(customer) { // calculate the number of Customers who are "Waiting for the dish"
+                                if(customer.status === `isWaitingForTheDish`) {
+                                    isWaitingForTheDishNumberOfCustomers++;
                                 }
                             });
-                            dishes[0].follow(waiter,50);
+
+                            timedEventsJournal.forEach(function(timedEvent) { // calculate the number of Events which are "Cook the food"
+                                if(timedEvent.type === `isCookingTheDish`) {
+                                    isCookingTheDishNumberOfEvents++;
+                                }
+                            });
+
+                            if(isCookingTheDishNumberOfEvents < isWaitingForTheDishNumberOfCustomers) {
+                                setEvent(300, customer, `isCookingTheDish`); // if no dish are 
+                            }
+                        } else {
+                            setEvent(300, customer, `isCookingTheDish`); // if no dish are 
                         }
                     }
                     break;
                 
                 // 8: once served, he eats
                 case `isEating`:
-                    if(timedEventsJournal.length !== 0) {
-                        var countLap = 0;
-                        timedEventsJournal.forEach(function(timedEvent) {
-                            if(timedEvent.id === customer.id) {
-                                if(timedEvent.frames === frames) {
-                                    dishes[0].status = `isEmpty`;
-                                    customer.status = `isLeavingRestaurant`;
-                                    addToJournal(`customers`, customer.id, -50, -50);
-                                    timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
-                                    countLap--;
-                                }
-                            } else if(countLap === timedEventsJournal.length) {
-                                timedEventsJournal.push({id: customer.id, frames: frames+300});
-                                console.log(`foo`);
-                            }
-                        });
-                    } else {
-                        timedEventsJournal.push({id: customer.id, frames: frames+300});
-                    }
+                    setEvent(300, customer, `isEating`);
                     break;
                 
                 // 9: customer is leaving
@@ -223,7 +196,7 @@ function draw() {
                 
                 // 10: the money is collected and the table is cleaned by the 
                 case `isGone`:
-                    console.log('customer is gone');
+                    // console.log('customer is gone');
                     break; 
             }
         });
@@ -377,6 +350,41 @@ function removeFromJournal(componentName, id) {
         case `dishes`:
             removeIdFrom(dishesJournal);
             break;
+    }
+}
+
+// function to fill timedEventsJournal
+function setEvent(duration, object, event) { // ex value : 300, customer.id, `isWaitingToOrder`
+    if(timedEventsJournal.length !== 0) {
+        var countLap = 0;
+        timedEventsJournal.forEach(function(timedEvent) {
+            if(timedEvent.id === object.id) {
+                console.log(`foo`);
+                if(timedEvent.frames === frames) {
+                    console.log(`bar`);
+                    switch(event) {
+                        case `isReadingTheMenu`:
+                            console.log(`baz`);
+                            object.status = `isWaitingToOrder`;
+                            break;
+                        case `isCookingTheDish`:
+                            createNew(`dish`,object.favoriteDish); // create and display a new dish
+                            break;
+                        case `isEating`:
+                            dishes[0].status = `isEmpty`;
+                            object.status = `isLeavingRestaurant`;
+                            addToJournal(`customers`, object.id, -50, -50);
+                            break;
+                    }
+                    timedEventsJournal.splice(timedEventsJournal.indexOf(timedEventsJournal),1);
+                    countLap--;
+                }
+            } else if(countLap === timedEventsJournal.length) {
+                timedEventsJournal.push({type: event, id: object.id, frames: frames+duration});
+            }
+        });
+    } else {
+        timedEventsJournal.push({type: event, id: object.id, frames: frames+duration});
     }
 }
 
