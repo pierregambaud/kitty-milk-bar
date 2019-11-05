@@ -3,6 +3,7 @@ class Dish extends DynamicComponent {
         super(25,25,x,y,25+x-150,y,dishId,dish.name,`isReadyToBeServed`);
         this.name = dish.name;
         this.color = dish.color;
+        this.price = dish.price;
         this.customerId = customerId;
     }
 

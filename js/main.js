@@ -21,7 +21,7 @@ const canvasTop = canvas.offsetTop;
 const ctx = document.querySelector('canvas').getContext('2d');
 const W = ctx.canvas.width;
 const H = ctx.canvas.height;
-const menu = [{name: `Chocolate Milkshake`, color:`brown`}, {name: `Vanilla Milkshake`, color:`yellow`}, {name: `Strawberry Milkshake`, color:`pink`}];
+const menu = [{name: `Chocolate Milkshake`, color:`brown`, price:10}, {name: `Vanilla Milkshake`, color:`yellow`, price:12}, {name: `Strawberry Milkshake`, color:`pink`, price:14}];
 
 
 // draw canvas
@@ -31,7 +31,10 @@ function draw() {
     // *************************
     ctx.clearRect(0,0,W,H);
 
-    // welcome lobby
+    // draw score
+    drawScore();
+
+    // draw welcome lobby
     lobby.draw();
 
     // draw serving hatch
@@ -203,9 +206,9 @@ function draw() {
                                     if(dish.id === timedEvent.id) {
                                         dish.status = `isEmpty`;
                                     }
-                                    
+
                                     tables.forEach(function(table) {
-                                        if(table.interactionX === dish.interactionX && table.interactionY === dish.interactionY) {
+                                        if(table.interactionX === dish.interactionX && table.interactionY === dish.interactionY && customer.x === table.chairX && customer.y === table.chairY) {
                                             table.hasMoney = true; // display the money on the table
                                         }
                                     })
@@ -231,6 +234,7 @@ function draw() {
                     if(dishes.length !== 0) {
                         dishes.forEach(function(dish) {
                             if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === `isEmpty`) { // when waiter arrives to the interaction coordinates of an empty dish
+                                money+= dish.price;
                                 tables.forEach(function(table) {
                                     if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
                                         table.hasMoney = false; // remove the money on the table
@@ -289,6 +293,14 @@ function drawArray(arrayName, array, journalArray) { // ex values: `customers`, 
             el.draw();
         });
     }
+}
+
+// function to display score / money
+function drawScore() {
+    ctx.font = "50px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.fillText(`Cash: $${money}`, W - 180, 90);
 }
 
 
