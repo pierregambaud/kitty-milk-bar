@@ -170,6 +170,12 @@ function draw() {
                             if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === "isReadyToBeServed") { // FIXME
                                 dish.status = `isTakenByWaiter`;
                                 waiter.status = `isHoldingADish`;
+
+                                servingHatch.dishesSpots.forEach(function(dishSpot) {
+                                    if(dishSpot.x === dish.x && dishSpot.y === dish.y) {
+                                        dishSpot.available = true; // the dish spot is now available again
+                                    }
+                                });
                             }
                         
                             if(dish.status === `isTakenByWaiter`) {
@@ -308,14 +314,16 @@ function drawScore() {
 
 // function to display time (based on frames)
 function drawTime() {
-    var time = 6 + Math.floor(frames / 1000); 
+    var time = 6 + Math.floor(frames / 800); 
     ctx.font = "50px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
 
-    if(time === 13) {
-        gameover = true;
+    if(time >= 13) {
         ctx.fillText(`Diner closed`, 180, 90);
+        if(customers.length === 0) {
+            gameover = true;
+        }
     } else {
         ctx.fillText(`Time: ${time} P.M`, 180, 90);
     }
@@ -357,6 +365,8 @@ function createNew(componentName, customer) { // customer for dish only (custome
             break;
         case `dish`:
             reserveAndDefineAvailableSpotIndex(servingHatch.dishesSpots);
+            availableSpotIndex = availableSpotIndex % servingHatch.dishesSpots.length;
+            console.log(availableSpotIndex);
             
             numberOfDishesCreated++;
             multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, customer.id, customer.favoriteDish)); // create dish and push it to dishes & interactiveElements         
