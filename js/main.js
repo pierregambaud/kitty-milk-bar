@@ -21,7 +21,7 @@ const canvasTop = canvas.offsetTop;
 const ctx = document.querySelector('canvas').getContext('2d');
 const W = ctx.canvas.width;
 const H = ctx.canvas.height;
-const menu = [{name: `Chocolate Milkshake`, color:`brown`}, {name: `Vanilla Milkshake`, color:`vanilla`}, {name: `Strawberry Milkshake`, color:`pink`}];
+const menu = [{name: `Chocolate Milkshake`, color:`brown`}, {name: `Vanilla Milkshake`, color:`yellow`}, {name: `Strawberry Milkshake`, color:`pink`}];
 
 
 // draw canvas
@@ -87,7 +87,7 @@ function draw() {
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
                         if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
-                            addToJournal(`customers`,customer.id,{x:table.chairX,y:table.chairY}); // update the customers journal with the chair coordinates
+                            addToJournal(`customers`, customer.id, {x:table.chairX,y:table.chairY}); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
                             customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
@@ -161,7 +161,7 @@ function draw() {
                         dishes.forEach(function(dish) {
 
                             // when waiter arrives to the interaction coordinates of a dish
-                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY) {
+                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === "isReadyToBeServed") { // FIXME
                                 dish.status = `isTakenByWaiter`;
                                 waiter.status = `isHoldingADish`;
                             }
@@ -173,14 +173,16 @@ function draw() {
                                         if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
                                             dish.status = `isLaidOnTheRightTable`;
                                             waiter.status = `isAvailable`;
-                                            addToJournal(`dishes`, dish.id,{x:table.dishX, y:table.dishY}); // update the dishes journal with the dish coordinates
+                                            addToJournal(`dishes`, dish.id, {x:table.dishX, y:table.dishY}); // update the dishes journal with the dish coordinates
                                             dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
                                             dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
                                             customer.status = `isReceivingTheDish`;
                                         }
                                     }
                                 });
-                                dish.follow(waiter,50);
+                                if(dish.status !== `isLaidOnTheRightTable`) {
+                                    dish.follow(waiter,50);
+                                }
                             }
                         })
                     }
@@ -193,7 +195,7 @@ function draw() {
                     break;
 
                 // 11: once served, he eats
-                case `isEating`:
+                case `isEating`:                    
                     timedEventsJournal.forEach(function(timedEvent) {
                         if(timedEvent.id === customer.id && timedEvent.type === `isEating`) {
                             if(timedEvent.frames === frames) {
@@ -353,7 +355,6 @@ function addToJournal(componentName,idOfComponent,details) {
             break;
         case `events`:
             timedEventsJournal.push({id:idOfComponent, type:details.type, frames:details.frames});
-            console.log(`id:${idOfComponent}, type:${details.type}, frames:${details.frames}`)
             break;
     }
 }
@@ -407,7 +408,7 @@ function startGame() {
     lobby = new Lobby();
     servingHatch = new ServingHatch();
     createNew(`customer`);
-    // createNew(`customer`);
+    createNew(`customer`);
 
     // fill each component array
     tables.push(new Table(W/4, H/5));
