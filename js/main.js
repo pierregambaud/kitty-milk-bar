@@ -34,6 +34,9 @@ function draw() {
     // draw score
     drawScore();
 
+    // draw time
+    drawTime();
+
     // draw welcome lobby
     lobby.draw();
 
@@ -301,6 +304,21 @@ function drawScore() {
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.fillText(`Cash: $${money}`, W - 180, 90);
+}
+
+// function to display time (based on frames)
+function drawTime() {
+    var time = 6 + Math.floor(frames / 1000); 
+    ctx.font = "50px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+
+    if(time === 13) {
+        gameover = true;
+        ctx.fillText(`Diner closed`, 180, 90);
+    } else {
+        ctx.fillText(`Time: ${time} P.M`, 180, 90);
+    }
 }
 
 
