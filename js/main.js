@@ -319,10 +319,19 @@ function drawTime() {
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
 
-    if(time >= 13) {
+    if(time >= 13) { // if 13 reached, no more customers are created
         ctx.fillText(`Diner closed`, 180, 90);
-        if(customers.length === 0) {
-            gameover = true;
+        if(customers.length === 0) { // if there are no customers left
+            var tablesAllCleaned = true;
+            tables.forEach(function(table){ 
+                if(table.hasMoney === true) { // if all tables are cleaned
+                    tablesAllCleaned = false;
+                }
+            });
+
+            if(tablesAllCleaned) { // then game is finished
+                gameover = true;
+            }
         }
     } else {
         ctx.fillText(`Time: ${time} P.M`, 180, 90);
@@ -376,6 +385,7 @@ function createNew(componentName, customer) { // customer for dish only (custome
     // if availability is still false, it means all spots are taken: game over
     if(!availableSpot) { 
         gameover = true;
+        console.log(`game over`);
     }
 
     availableSpot = null;
