@@ -14,6 +14,7 @@ let timedEventsJournal = [];
 let gameover;
 let frames = 0;
 let money = 0;
+let customersFlux;
 
 const canvas = document.getElementById('game-board');
 const canvasLeft = canvas.offsetLeft;
@@ -167,7 +168,7 @@ function draw() {
                         dishes.forEach(function(dish) {
 
                             // when waiter arrives to the interaction coordinates of a dish
-                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === "isReadyToBeServed") { // FIXME
+                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === "isReadyToBeServed") {
                                 dish.status = `isTakenByWaiter`;
                                 waiter.status = `isHoldingADish`;
 
@@ -213,7 +214,7 @@ function draw() {
                             if(timedEvent.frames === frames) {
                                 dishes.forEach(function(dish) {
                                     if(dish.id === timedEvent.id) {
-                                        dish.status = `isEmpty`;
+                                        dish.status = `isEmpty`; // FIXME when lot of customers
                                     }
 
                                     tables.forEach(function(table) {
@@ -320,6 +321,7 @@ function drawTime() {
     ctx.textAlign = "center";
 
     if(time >= 13) { // if 13 reached, no more customers are created
+        clearInterval(customersFlux); // stop customersFlux interval
         ctx.fillText(`Diner closed`, 180, 90);
         if(customers.length === 0) { // if there are no customers left
             var tablesAllCleaned = true;
@@ -475,8 +477,9 @@ function startGame() {
     waiter = new Waiter();
     lobby = new Lobby();
     servingHatch = new ServingHatch();
-    createNew(`customer`);
-    createNew(`customer`);
+
+    createNew(`customer`); // first customer
+    customersFlux = setInterval(function(){createNew(`customer`)},10000); // next customers
 
     // fill each component array
     tables.push(new Table(W/4, H/5));
