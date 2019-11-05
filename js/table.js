@@ -9,6 +9,9 @@ class Table extends Component {
         this.chairW = 30;
         this.dishX = x - 60;
         this.dishY = y;
+        this.hasMoney = false;
+        this.moneyX = x - 25;
+        this.moneyY = y - 70;
     }
 
     draw() {
@@ -27,5 +30,11 @@ class Table extends Component {
         ctx.fillStyle = `orange`;
         ctx.fill();
         ctx.stroke();
+
+        if(this.hasMoney) {
+            // money
+            ctx.fillStyle = "green";
+            ctx.fillRect(this.moneyX, this.moneyY, 50, 20);
+        }
     }
 }

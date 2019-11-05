@@ -200,9 +200,15 @@ function draw() {
                         if(timedEvent.id === customer.id && timedEvent.type === `isEating`) {
                             if(timedEvent.frames === frames) {
                                 dishes.forEach(function(dish) {
-                                    if(dish.id === timedEventsJournal.id) {
+                                    if(dish.id === timedEvent.id) {
                                         dish.status = `isEmpty`;
                                     }
+                                    
+                                    tables.forEach(function(table) {
+                                        if(table.interactionX === dish.interactionX && table.interactionY === dish.interactionY) {
+                                            table.hasMoney = true; // display the money on the table
+                                        }
+                                    })
                                 })
                                 removeFromJournal(`events`,timedEvent.id);
                                 customer.status = `isLeavingRestaurant`;
@@ -222,7 +228,19 @@ function draw() {
                 
                 // 13: the money is collected and the table is cleaned by the 
                 case `isGone`:
-                    // console.log('customer is gone');
+                    if(dishes.length !== 0) {
+                        dishes.forEach(function(dish) {
+                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === `isEmpty`) { // when waiter arrives to the interaction coordinates of an empty dish
+                                tables.forEach(function(table) {
+                                    if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
+                                        table.hasMoney = false; // remove the money on the table
+                                    }
+                                })
+                                dishes.splice(dishes.indexOf(dish),1); // remove the dish from the array = makes it disappear
+                                customers.splice(customers.indexOf(customer),1); // remove the customer from the array
+                            }
+                        })
+                    }
                     break; 
             }
         });
