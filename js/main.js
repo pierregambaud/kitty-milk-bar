@@ -51,6 +51,12 @@ function draw() {
     drawArray(`dishes`, dishes, dishesJournal);
 
     // draw each customer checking its journal position (defaut: its own position)
+    if(numberOfCustomersCreated === 0) {
+        createNew(`customer`); // first customer
+        setCustomerTimeout(); // set quick timeout for the second
+    } else if (frames % 500 === 0) { // set longer timeout for the rest of them
+        setCustomerTimeout();
+    } 
     drawArray(`customers`, customers, customersJournal);
 
     // draw waiter checking his journal position (defaut: his own position)
@@ -184,7 +190,7 @@ function draw() {
                                 // when waiter arrives to the interaction coordinates of one of the tables
                                 tables.forEach(function (table) {
                                     if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
-                                        if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
+                                        if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name && dish.customerId === customer.id ) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
                                             dish.status = `isLaidOnTheRightTable`;
                                             waiter.status = `isAvailable`;
                                             addToJournal(`dishes`, dish.id, {x:table.dishX, y:table.dishY}); // update the dishes journal with the dish coordinates
@@ -215,7 +221,7 @@ function draw() {
                             if(timedEvent.frames === frames) {
                                 dishes.forEach(function(dish) {
                                     if(dish.id === timedEvent.id) {
-                                        dish.status = `isEmpty`; // FIXME when lot of customers
+                                        dish.status = `isEmpty`;
                                     }
 
                                     tables.forEach(function(table) {
@@ -322,8 +328,8 @@ function drawTime() {
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
 
-    if(time >= 13) { // if 13 reached, no more customers are created
-        clearInterval(customersFlux); // stop customersFlux interval
+    if(time >= 12) { // if 13 reached, no more customers are created
+        clearTimeout(customersFlux); // stop customersFlux timeout
         ctx.fillText(`Diner closed`, 180, 90);
         if(customers.length === 0) { // if there are no customers left
             var tablesAllCleaned = true;
@@ -393,6 +399,13 @@ function createNew(componentName, customer) { // customer for dish only (custome
 
     availableSpot = null;
     availableSpotIndex = null;
+}
+
+// function to time the creation of new customers
+function setCustomerTimeout() {
+    var randomDelay = Math.floor(Math.random() * 2000) + 1000; // between 2000 and 4000 (+ 500 frames)
+
+    customersFlux = setTimeout(function(){createNew(`customer`)},randomDelay); 
 }
 
 // function to update customer position in the lobby
@@ -478,9 +491,6 @@ function startGame() {
     waiter = new Waiter();
     lobby = new Lobby();
     servingHatch = new ServingHatch();
-
-    createNew(`customer`); // first customer
-    customersFlux = setInterval(function(){createNew(`customer`)},10000); // next customers FIXME - mettre un setTimer plusieurs fois avec le delay aléatoire d'une variable
 
     // fill each component array
     tables.push(new Table(W/4, H/5));
