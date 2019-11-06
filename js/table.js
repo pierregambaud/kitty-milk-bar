@@ -4,6 +4,7 @@ class Table extends Component {
         (y>H/2) ? iY = y-W/6/2-80 : iY = y+W/6/2+80; // personalize interaction Y according to table location
 
         super(W/6,W/6,x,y,x,iY);
+        this.available = true;
         this.chairX = x - W/7;
         this.chairY = y;
         this.chairW = 30;

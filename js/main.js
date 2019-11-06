@@ -78,7 +78,7 @@ function draw() {
                 // 2. he waits for the waiter to seat him
                 case `isStandingInLine`:
                     // if waiter walks in the interaction zone of the customer
-                    if(waiter.x === customer.interactionX && waiter.y === customer.interactionY && waiter.status === "isAvailable") {
+                    if(waiter.x === customer.interactionX && waiter.y === customer.interactionY && waiter.status === `isAvailable`) {
                         customer.status = `isFollowingTheWaiter`;
                         waiter.status = `isTakingCustomerToATable`;
 
@@ -93,10 +93,11 @@ function draw() {
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
-                        if(waiter.x === table.interactionX && waiter.y === table.interactionY) { 
+                        if(waiter.x === table.interactionX && waiter.y === table.interactionY && table.available === true) { 
                             addToJournal(`customers`, customer.id, {x:table.chairX,y:table.chairY}); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
+                            table.available = false;
                             customer.interactionX = table.interactionX; // update the customer interaction X according to the table he is seaten
                             customer.interactionY = table.interactionY; // update the customer interaction Y according to the table he is seaten
                         }
@@ -134,7 +135,7 @@ function draw() {
                 
                 // 7: once decided, he calls the waiter to order
                 case `isWaitingToOrder`:
-                    // display "call waiter" notification
+                    // display `call waiter` notification
                     customer.callWaiter();
 
                     // if the waiter reaches the customer table
@@ -168,7 +169,7 @@ function draw() {
                         dishes.forEach(function(dish) {
 
                             // when waiter arrives to the interaction coordinates of a dish
-                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === "isReadyToBeServed") {
+                            if(waiter.x === dish.interactionX && waiter.y === dish.interactionY && dish.status === `isReadyToBeServed` && waiter.status === `isAvailable`) {
                                 dish.status = `isTakenByWaiter`;
                                 waiter.status = `isHoldingADish`;
 
@@ -248,6 +249,7 @@ function draw() {
                                 tables.forEach(function(table) {
                                     if(waiter.x === table.interactionX && waiter.y === table.interactionY) {
                                         table.hasMoney = false; // remove the money on the table
+                                        table.available = true; // table is now available again
                                     }
                                 })
                                 dishes.splice(dishes.indexOf(dish),1); // remove the dish from the array = makes it disappear
@@ -377,7 +379,6 @@ function createNew(componentName, customer) { // customer for dish only (custome
         case `dish`:
             reserveAndDefineAvailableSpotIndex(servingHatch.dishesSpots);
             availableSpotIndex = availableSpotIndex % servingHatch.dishesSpots.length;
-            console.log(availableSpotIndex);
             
             numberOfDishesCreated++;
             multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, customer.id, customer.favoriteDish)); // create dish and push it to dishes & interactiveElements         
@@ -397,7 +398,7 @@ function createNew(componentName, customer) { // customer for dish only (custome
 // function to update customer position in the lobby
 function updateLobbySpots() {
     customers.forEach(function(customer) {
-        if (customer.status === "isStandingInLine") {
+        if (customer.status === `isStandingInLine`) {
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots); 
             addToJournal(`customers`, customer.id, {x:lobby.customersSpots[availableSpotIndex].x, y:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
             lobby.customersSpots[availableSpotIndex+1].available = true; // the previous spot is now available
@@ -479,7 +480,7 @@ function startGame() {
     servingHatch = new ServingHatch();
 
     createNew(`customer`); // first customer
-    customersFlux = setInterval(function(){createNew(`customer`)},10000); // next customers
+    customersFlux = setInterval(function(){createNew(`customer`)},10000); // next customers FIXME - mettre un setTimer plusieurs fois avec le delay aléatoire d'une variable
 
     // fill each component array
     tables.push(new Table(W/4, H/5));
