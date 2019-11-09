@@ -4,6 +4,7 @@ class DynamicComponent extends Component {
         this.id = id;
         this.name = name;
         this.status = status;
+        this.direction = `left`;
     }
 
     moveTo(componentName,id,destinationX,destinationY) {
@@ -20,8 +21,10 @@ class DynamicComponent extends Component {
             if(Math.abs(destinationX-this.x) >= stepWidth) {
                 if (destinationX > this.x) { 
                     this.x += stepWidth;
+                    this.direction = `right`;
                 } else {
                     this.x -= stepWidth;
+                    this.direction = `left`;
                 }
             } else {
                 this.x = destinationX;

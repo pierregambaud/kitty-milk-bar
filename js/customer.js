@@ -1,6 +1,16 @@
 class Customer extends DynamicComponent {
     constructor(id) {
-        super(40,40,0,H/2,40+W/6+150,H/2,id,`customer`+id, `isEnteringTheRestaurant`);
+        var w = 40;
+        var h = 40;
+        var x = 0;
+        var y = H/2;
+        var iX = w + W/6 + 150;
+        var iY = H/2;
+        var name = `customer` + id;
+        var status = `isEnteringTheRestaurant`;
+
+        super(w,h,x,y,iX,iY,id,name,status);
+
         this.favoriteDish = this.chooseDish();
     }
 

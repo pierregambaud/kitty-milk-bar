@@ -15,7 +15,6 @@ let gameover;
 let frames = 0;
 let money = 0;
 let customersFlux;
-var count = 0; // for sprites
 
 const canvas = document.getElementById('game-board');
 const canvasLeft = canvas.offsetLeft;

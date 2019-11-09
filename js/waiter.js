@@ -1,9 +1,20 @@
 class Waiter extends DynamicComponent {
     constructor() {
-        super(180,180,W/2,H/2,null,null,1,`waiter`,`isAvailable`);
+        var w = 180;
+        var h = 180;
+        var x = W/2;
+        var y = H/2;
+        var iX = null;
+        var iY = null;
+        var id = 1;
+        var name = `waiter`;
+        var status = `isAvailable`;
+
+        super(w,h,x,y,iX,iY,id,name,status);
         
         this.animated = false;
         this.currentAnimationFrame = 0;
+        this.animationCounter = 0;
 
         const waiterImage = document.createElement('img');
         waiterImage.onload = () => {
@@ -22,30 +33,35 @@ class Waiter extends DynamicComponent {
 
     draw() {
         if (!this.image) return; // if `this.img` is not loaded yet => don't draw
-        
-        // function updateFrame() {
-        //     this.currentAnimationFrame = ++(this.currentAnimationFrame) % this.imageCols;
-        //     this.spriteX = this.currentAnimationFrame * this.spriteW;
-        //     this.spriteY = 0 * this.spriteH;
-        // }
-        // updateFrame = updateFrame.bind(this);
 
         const updateFrame = () => {
             this.currentAnimationFrame = ++(this.currentAnimationFrame) % this.imageCols;
             this.spriteX = this.currentAnimationFrame * this.spriteW;
-            this.spriteY = 0 * this.spriteH;
+            if(this.direction === `right`) {
+                this.spriteY = 1 * this.spriteH; // tail left position
+            } else {
+                this.spriteY = 0 * this.spriteH; // tail right position
+            }
         }
 
         if(frames % 300 === 0) {
             this.animated = true;
         }
 
-        if(this.animated && frames % 3 === 0) {
-            updateFrame();
-            count++;
-            if(count === this.imageCols) {
-                this.animated = false;
-                count = 0;
+        if(this.animated) { 
+            if(frames % 3 === 0) { // if animated, sprints
+                updateFrame();
+                this.animationCounter++;
+                if(this.animationCounter === this.imageCols) {
+                    this.animated = false;
+                    this.animationCounter = 0;
+                }
+            }
+        } else { // if not animated, just change tail position according to the direction
+            if(this.direction === `right`) {
+                this.spriteY = 1 * this.spriteH; // tail left position
+            } else {
+                this.spriteY = 0 * this.spriteH; // tail right position
             }
         }
 

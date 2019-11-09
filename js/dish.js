@@ -1,7 +1,14 @@
 class Dish extends DynamicComponent {
     constructor(x,y,dishId,customerId,dish) {
-        super(25,25,x,y,25+x-150,y,dishId,dish.name,`isReadyToBeServed`);
-        this.name = dish.name;
+        var w = 25;
+        var h = 25;
+        var iX = h + x - 150;
+        var iY = y;
+        var name = dish.name;
+        var status = `isReadyToBeServed`;
+
+        super(w,h,x,y,iX,iY,dishId,name,status);
+
         this.color = dish.color;
         this.price = dish.price;
         this.customerId = customerId;
