@@ -66,13 +66,6 @@ class Customer extends DynamicComponent {
         }
 
         ctx.drawImage(this.image, this.spriteX, this.spriteY, this.spriteW, this.spriteH, this.x-this.w/2, this.y-this.h/2, this.w, this.h);
-
-        // ctx.beginPath();
-        // ctx.moveTo(this.x, this.y);
-        // ctx.arc(this.x, this.y, this.w, 0, Math.PI * 2);
-        // ctx.fillStyle = `yellow`;
-        // ctx.fill();
-        // ctx.stroke();
     }
 
     chooseDish() {
@@ -87,5 +80,44 @@ class Customer extends DynamicComponent {
         ctx.fillStyle = "black";
         ctx.textAlign = "center";
         ctx.fillText("please!", this.x+100+40, this.y+60-100);
+    }
+
+    showOrderedDish() {
+        var orderedDishW = 100;
+        var orderedDishH = 100;
+        var orderedDishX = this.x + orderedDishW/2;
+        var orderedDishY = this.y - orderedDishH;
+        var orderedDishSpriteX = 0;
+        var orderedDishSpriteY = 0;
+        var orderedDishSpriteW = 200;
+        var orderedDishSpriteH = 200;
+
+        const orderedDishImage = document.createElement('img');
+        orderedDishImage.onload = () => {
+        }
+        orderedDishImage.src = './img/bowl.png';
+
+        if (!this.image) return;
+
+        switch(this.favoriteDish.name) {
+            case `Chocolate Milkshake` :
+                orderedDishSpriteY = 0 * orderedDishSpriteH;
+                break;
+            case `Strawberry Milkshake` :
+                orderedDishSpriteY = 1 * orderedDishSpriteH;
+                break; 
+            case `Vanilla Milkshake` :
+                orderedDishSpriteY = 2 * orderedDishSpriteH;
+                break;           
+        }
+
+        ctx.drawImage(orderedDishImage, orderedDishSpriteX, orderedDishSpriteY, orderedDishSpriteW, orderedDishSpriteH, orderedDishX, orderedDishY, orderedDishW, orderedDishH);
+        
+        // ctx.fillStyle = "white";
+        // ctx.fillRect(this.x+40, this.y-100, 200, 90);
+        // ctx.font = "50px Arial";
+        // ctx.fillStyle = "black";
+        // ctx.textAlign = "center";
+        // ctx.fillText(this.favoriteDish.name, this.x+100+40, this.y+60-100);
     }
 }

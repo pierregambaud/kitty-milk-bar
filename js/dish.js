@@ -34,7 +34,8 @@ class Dish extends DynamicComponent {
             this.currentAnimationFrame = ++(this.currentAnimationFrame) % this.imageCols;
 
             switch(this.status) {
-                case `isReadyToBeServed`, `isTakenByWaiter` :
+                case `isReadyToBeServed`:
+                case `isTakenByWaiter` :
                     this.spriteX = 0 * this.spriteW;
                     break;
                 case `isLaidOnTheRightTable` :

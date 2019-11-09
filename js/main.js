@@ -161,6 +161,8 @@ function draw() {
 
                 // 9: once ordered, he waits for the dish
                 case `isWaitingForTheDish`:
+                    customer.showOrderedDish();
+
                     timedEventsJournal.forEach(function(timedEvent) {
                         if(timedEvent.id === customer.id && timedEvent.type === `cookingTime`) {
                             if(timedEvent.frames === frames) {
@@ -231,7 +233,7 @@ function draw() {
                                 })
                                 removeFromJournal(`events`,timedEvent.id);
                                 customer.status = `isLeavingRestaurant`;
-                                addToJournal(`customers`, customer.id, {x:-50, y:-50});
+                                addToJournal(`customers`, customer.id, {x:-100, y:-100});
                             }
                         }
                     });
