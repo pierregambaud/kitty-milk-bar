@@ -22,7 +22,7 @@ const canvasTop = canvas.offsetTop;
 const ctx = document.querySelector('canvas').getContext('2d');
 const W = ctx.canvas.width;
 const H = ctx.canvas.height;
-const menu = [{name: `Chocolate Milkshake`, color:`brown`, price:10}, {name: `Vanilla Milkshake`, color:`yellow`, price:12}, {name: `Strawberry Milkshake`, color:`pink`, price:14}];
+const menu = [{name: `Chocolate Milkshake`, price:10}, {name: `Strawberry Milkshake`, price:12}, {name: `Vanilla Milkshake`, price:14}];
 
 
 // draw canvas
@@ -47,9 +47,6 @@ function draw() {
     // draw tables & seats
     tables.forEach(table => table.draw());
 
-    // draw each dish checking its journal position (defaut: its own position)
-    drawArray(`dishes`, dishes, dishesJournal);
-
     // draw each customer checking its journal position (defaut: its own position)
     if(numberOfCustomersCreated === 0) {
         createNew(`customer`); // first customer
@@ -65,6 +62,8 @@ function draw() {
     }
     waiter.draw();
 
+    // draw each dish checking its journal position (defaut: its own position)
+    drawArray(`dishes`, dishes, dishesJournal);
 
     // ******** CUSTOMER JOURNEY ********
     // **********************************
