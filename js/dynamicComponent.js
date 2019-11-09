@@ -4,7 +4,7 @@ class DynamicComponent extends Component {
         this.id = id;
         this.name = name;
         this.status = status;
-        this.direction = `left`;
+        this.direction = `right`;
     }
 
     moveTo(componentName,id,destinationX,destinationY) {

@@ -1,6 +1,8 @@
+#game-board {
+    /* width: 100vw;
+    object-fit: contain; */
+}
+
 canvas {
     border: solid 1px black;
-    /* height: 100vh;
-    width: 100vw;
-    object-fit: contain; */
 }

@@ -1,7 +1,18 @@
 class Lobby extends Component {
     constructor() {
-        super(W/4,H/10,0,H/2-H/10/2,null,null);
-        this.customersSpots = [{x: this.x + this.w - 50 - 80*0, y: this.y + this.w / 3, available: true},{x: this.x + this.w - 50 - 80*1, y: this.y + this.w / 3, available: true},{x: this.x + this.w - 50 - 80*2, y: this.y + this.w / 3, available: true},{x: this.x + this.w - 50 - 80*3, y: this.y + this.w / 3, available: true},{x: this.x + this.w - 50 - 80*4, y: this.y + this.w / 3, available: true},{x: this.x + this.w - 50 - 80*5, y: this.y + this.w / 3, available: true}];
+        var w = W/4;
+        var h = H/10;
+        var x = 0;
+        var y = H/2-h/2;
+        var iX = null;
+        var iY = null;
+
+        super(w,h,x,y,iX,iY);
+
+        var minimumDistanceFromRightBorder = 80;
+        var distanceBetweenSpot = 160;
+
+        this.customersSpots = [{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*0, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*1, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*2, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*3, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*4, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*5, y: this.y + this.w / 3, available: true}];
     }
 
     draw() {

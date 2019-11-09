@@ -1,9 +1,14 @@
 class Table extends Component {
     constructor(x,y) {
+        var w = W/6;
+        var h = W/6;
         var iY;
-        (y>H/2) ? iY = y-W/6/2-80 : iY = y+W/6/2+80; // personalize interaction Y according to table location
+        
+        var distanceFromTable = 20;
+        (y>H/2) ? iY = y-w/2-distanceFromTable : iY = y+w/2+distanceFromTable; // personalize interaction Y point according to top or bottom table location
 
-        super(W/6,W/6,x,y,x,iY);
+        super(w,h,x,y,x,iY);
+        
         this.available = true;
         this.chairX = x - W/7;
         this.chairY = y;

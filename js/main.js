@@ -94,7 +94,7 @@ function draw() {
                 
                 // 3. he follows the waiter
                 case `isFollowingTheWaiter`:
-                    customer.follow(waiter,100);
+                    customer.follow(waiter,customer.w + 20);
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
@@ -200,7 +200,7 @@ function draw() {
                                     }
                                 });
                                 if(dish.status !== `isLaidOnTheRightTable`) {
-                                    dish.follow(waiter,50);
+                                    dish.follow(waiter,5);
                                 }
                             }
                         })
