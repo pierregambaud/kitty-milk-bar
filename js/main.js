@@ -316,7 +316,7 @@ function drawArray(arrayName, array, journalArray) { // ex values: `customers`, 
 
 // function to display score / money
 function drawScore() {
-    ctx.font = "50px Arial";
+    ctx.font = "50px Open Sans";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.fillText(`Cash: $${money}`, W - 180, 90);
@@ -325,7 +325,7 @@ function drawScore() {
 // function to display time (based on frames)
 function drawTime() {
     var time = 6 + Math.floor(frames / 800); 
-    ctx.font = "50px Arial";
+    ctx.font = "50px Open Sans";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
 

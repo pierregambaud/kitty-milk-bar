@@ -29,6 +29,12 @@ class Customer extends DynamicComponent {
           this.spriteH = this.imageH / this.imageRows;
         }
         customerImage.src = './img/customer.png';
+
+        const bubbleImage = document.createElement('img');
+        bubbleImage.onload = () => {
+            this.bubbleImage = bubbleImage;
+        }
+        bubbleImage.src = './img/bubble.png';
     }
 
     draw() {
@@ -74,19 +80,33 @@ class Customer extends DynamicComponent {
     }
 
     callWaiter() {
-        ctx.fillStyle = "white";
-        ctx.fillRect(this.x+40, this.y-100, 200, 90);
-        ctx.font = "50px Arial";
+        // bubble
+        var bubbleW = 150;
+        var bubbleH = 150;
+        var bubbleX = this.x + bubbleW/4;
+        var bubbleY = this.y - bubbleH;
+
+        if (!this.bubbleImage) return;
+
+        ctx.drawImage(this.bubbleImage, bubbleX, bubbleY, bubbleW, bubbleH);
+        ctx.font = "bold 30px Open Sans";
         ctx.fillStyle = "black";
         ctx.textAlign = "center";
-        ctx.fillText("please!", this.x+100+40, this.y+60-100);
+        ctx.fillText("meow!", bubbleX+75, bubbleY+80);
     }
 
     showOrderedDish() {
+        // bubble
+        var bubbleW = 150;
+        var bubbleH = 150;
+        var bubbleX = this.x + bubbleW/4;
+        var bubbleY = this.y - bubbleH;
+
+        // ordered dish
         var orderedDishW = 100;
         var orderedDishH = 100;
-        var orderedDishX = this.x + orderedDishW/2;
-        var orderedDishY = this.y - orderedDishH;
+        var orderedDishX = this.x + bubbleW/2 - 10;
+        var orderedDishY = this.y - bubbleH + 20;
         var orderedDishSpriteX = 0;
         var orderedDishSpriteY = 0;
         var orderedDishSpriteW = 200;
@@ -97,7 +117,9 @@ class Customer extends DynamicComponent {
         }
         orderedDishImage.src = './img/bowl.png';
 
-        if (!this.image) return;
+        // display both
+        if (!this.bubbleImage) return;
+        if (!orderedDishImage) return;
 
         switch(this.favoriteDish.name) {
             case `Chocolate Milkshake` :
@@ -111,13 +133,7 @@ class Customer extends DynamicComponent {
                 break;           
         }
 
+        ctx.drawImage(this.bubbleImage, bubbleX, bubbleY, bubbleW, bubbleH);
         ctx.drawImage(orderedDishImage, orderedDishSpriteX, orderedDishSpriteY, orderedDishSpriteW, orderedDishSpriteH, orderedDishX, orderedDishY, orderedDishW, orderedDishH);
-        
-        // ctx.fillStyle = "white";
-        // ctx.fillRect(this.x+40, this.y-100, 200, 90);
-        // ctx.font = "50px Arial";
-        // ctx.fillStyle = "black";
-        // ctx.textAlign = "center";
-        // ctx.fillText(this.favoriteDish.name, this.x+100+40, this.y+60-100);
     }
 }
