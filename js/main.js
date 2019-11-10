@@ -51,7 +51,7 @@ function draw() {
     if(numberOfCustomersCreated === 0) {
         createNew(`customer`); // first customer
         setCustomerTimeout(); // set quick timeout for the second
-    } else if (frames % 500 === 0) { // set longer timeout for the rest of them
+    } else if (frames % 500 === 0 && lobby.customersSpots[lobby.customersSpots.length-1].available === true) { // set longer timeout for the rest of them & checking if there's a spot available in the lobby line
         setCustomerTimeout();
     } 
     drawArray(`customers`, customers, customersJournal);
