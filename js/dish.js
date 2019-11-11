@@ -11,6 +11,7 @@ class Dish extends DynamicComponent {
 
         this.price = dish.price;
         this.customerId = customerId;
+        this.currentAnimationFrame = 0;
 
         const bowlImage = document.createElement('img');
         bowlImage.onload = () => {
