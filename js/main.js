@@ -421,13 +421,13 @@ function drawScore() {
 // function to display time (based on frames)
 function drawTime() {
     var time = 6 + Math.floor(frames / 800); 
-    ctx.font = "50px Open Sans";
-    ctx.fillStyle = "black";
+    ctx.font = "bold 28px Open Sans";
+    ctx.fillStyle = "#ff7272";
     ctx.textAlign = "center";
 
     if(time >= 12) { // if 13 reached, no more customers are created
         clearTimeout(customersFlux); // stop customersFlux timeout
-        ctx.fillText(`Diner closed`, 180, 90);
+        ctx.fillText(`CLOSED`, W/2, 35);
         if(customers.length === 0) { // if there are no customers left
             var tablesAllCleaned = true;
             tables.forEach(function(table){ 
@@ -441,7 +441,7 @@ function drawTime() {
             }
         }
     } else {
-        ctx.fillText(`Time: ${time} P.M`, 180, 90);
+        ctx.fillText(`${time} P.M.`, W/2, 35);
     }
 }
 
