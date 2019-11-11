@@ -99,9 +99,6 @@ function draw() {
                         if(oneTableIsAvailable) {
                             customer.status = `isFollowingTheWaiter`;
                             waiter.status = `isTakingCustomerToATable`;
-
-                            lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
-                            updateLobbySpots(); // update customers positions in the lobby
                         } else if(customer.x === lobby.customersSpots[0].x && customer.y === lobby.customersSpots[0].y) { // only the fist customer of the line says it
                             customer.showNoMoreTableAvailable();
                         }
@@ -114,7 +111,12 @@ function draw() {
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
-                        if(waiter.x === table.interactionX && waiter.y === table.interactionY && table.available === true) { 
+                        if(waiter.x === table.interactionX && waiter.y === table.interactionY && table.available === true) {
+                            // we are sure that the customer is arrived to its table => update lobby spots
+                            lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
+                            updateLobbySpots(); // update customers positions in the lobby
+
+                            // sit the customer
                             addToJournal(`customers`, customer.id, {x:table.chairX,y:table.chairY}); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
