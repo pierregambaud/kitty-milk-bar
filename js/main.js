@@ -270,11 +270,12 @@ function draw() {
     }
 }
 
-
 // listen to clicks
 canvas.addEventListener('click', function(event) {
     var clickX = event.pageX - canvasLeft,
         clickY = event.pageY - canvasTop;
+
+        console.log(`x: `,clickX,`y: `, clickY)
 
     // check if a validated interactive element has been clicked on
     function checkWaiterInteractionWith(component,x,y) {
