@@ -32,6 +32,9 @@ function draw() {
     // *************************
     ctx.clearRect(0,0,W,H);
 
+    // draw background
+    drawBackground();
+
     // draw score
     drawScore();
 
@@ -44,9 +47,6 @@ function draw() {
     // draw serving hatch
     servingHatch.draw();
 
-    // draw tables & seats
-    tables.forEach(table => table.draw());
-
     // draw each customer checking its journal position (defaut: its own position)
     if(numberOfCustomersCreated === 0) {
         createNew(`customer`); // first customer
@@ -55,6 +55,9 @@ function draw() {
         setCustomerTimeout();
     } 
     drawArray(`customers`, customers, customersJournal);
+
+    // draw tables & seats
+    tables.forEach(table => table.draw());
 
     // draw waiter checking his journal position (defaut: his own position)
     if (waiterJournal.length !== 0) {
@@ -115,6 +118,7 @@ function draw() {
                     tables.forEach(function (table) {
                         if(customer.x === table.chairX && customer.y === table.chairY) {
                             customer.status = `hasReceivedTheMenu`;
+                            table.x = table.chairX; // move the table if front of the customer
                         }
                     });
                     break;
@@ -227,6 +231,8 @@ function draw() {
 
                                     tables.forEach(function(table) {
                                         if(table.interactionX === dish.interactionX && table.interactionY === dish.interactionY && customer.x === table.chairX && customer.y === table.chairY) {
+                                            table.x = table.emptyTableX; // move the table to its initial position
+                                            dish.x = table.emptyTableX; // move the dish on the new position of the table
                                             table.hasMoney = true; // display the money on the table
                                         }
                                     })
@@ -280,12 +286,32 @@ canvas.addEventListener('click', function(event) {
     // check if a validated interactive element has been clicked on
     function checkWaiterInteractionWith(component,x,y) {
         // defines interactive area for each component based on its actual property
-        var surfaceTop = component.y + component.h;
-        var surfaceRight = component.x + component.w;
-        var surfaceBottom = component.y - component.h;
-        var surfaceLeft = component.x - component.w;
+        var surfaceTop;
+        var surfaceRight;
+        var surfaceBottom;
+        var surfaceLeft;
 
-        if(x < surfaceRight && x > surfaceLeft && y < surfaceTop && y > surfaceBottom) {
+        if(component.chairW) { // if it is a table
+            surfaceTop = component.chairY;
+            surfaceBottom = component.y + component.h / 2;
+
+            if(component.x < W/2) { // if the table is on the left part
+                surfaceRight = component.chairX + component.chairW / 2;
+                surfaceLeft = component.x - component.w / 2;
+            } else {
+                surfaceRight = component.x + component.w / 2;
+                surfaceLeft = component.chairX - component.w / 2;
+            }
+            console.log(`top: `,surfaceTop,`right: `,surfaceRight,` bottom:`,surfaceBottom,` left:`,surfaceLeft)
+        } else { // all other components
+            surfaceTop = component.y - component.h / 2;
+            surfaceRight = component.x + component.w / 2;
+            surfaceBottom = component.y + component.h / 2;
+            surfaceLeft = component.x - component.w / 2;      
+        }
+
+        if(x < surfaceRight && x > surfaceLeft && y > surfaceTop && y < surfaceBottom) {
+            console.log(`hit`);
             addToJournal(`waiter`, waiter.id, {x:component.interactionX, y:component.interactionY});
         }
     }
@@ -313,6 +339,21 @@ function drawArray(arrayName, array, journalArray) { // ex values: `customers`, 
             el.draw();
         });
     }
+}
+
+// function to display background
+const backgroundImage = document.createElement('img');
+backgroundImage.onload = () => {
+}
+backgroundImage.src = './img/background.png';
+
+function drawBackground() {
+    var backgroundW = W;
+    var backgroundH = H;
+    var backgroundX = 0;
+    var backgroundY = 0;
+    
+    ctx.drawImage(backgroundImage, backgroundX, backgroundY, backgroundW, backgroundH);
 }
 
 // function to display score / money
@@ -495,10 +536,15 @@ function startGame() {
     servingHatch = new ServingHatch();
 
     // fill each component array
-    tables.push(new Table(W/4, H/5));
-    tables.push(new Table(3*W/4, H/5));
-    tables.push(new Table(W/4, 4*H/5));
-    tables.push(new Table(3*W/4, 4*H/5));
+    var table1Coordinates = {x: 200, y: 510, chairX: 100+205, chairY: 410+10};
+    var table2Coordinates = {x: W-200, y: 510, chairX: W-200-100-5, chairY: 410+10};
+    var table3Coordinates = {x: 150, y: 1025, chairX: 50+190, chairY: 925+10};
+    var table4Coordinates = {x: W-150, y: 1025, chairX: W-200-50, chairY: 925+10};
+
+    tables.push(new Table(table1Coordinates));
+    tables.push(new Table(table2Coordinates));
+    tables.push(new Table(table3Coordinates));
+    tables.push(new Table(table4Coordinates));
 
     // fill interactiveElements array
     pushToInteractivesElements(tables);

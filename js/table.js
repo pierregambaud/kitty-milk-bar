@@ -1,41 +1,43 @@
 class Table extends Component {
-    constructor(x,y) {
-        var w = W/6;
-        var h = W/6;
-        var iY;
-        
+    constructor(coordinates) {
+        var w = 200;
+        var h = 200;
+        var x = coordinates.x;
+        var y = coordinates.y;
+        var iX = coordinates.x;
         var distanceFromTable = 20;
-        (y>H/2) ? iY = y-w/2-distanceFromTable : iY = y+w/2+distanceFromTable; // personalize interaction Y point according to top or bottom table location
+        var iY = coordinates.chairY+w/2+distanceFromTable;
 
-        super(w,h,x,y,x,iY);
-        
+        (coordinates.x>W/2) ? iX = coordinates.chairX-w/2-distanceFromTable : iX = coordinates.chairX+w/2+distanceFromTable; // personalize interaction X point according to left or right table location
+
+        super(w,h,x,y,iX,iY);
+
         this.available = true;
-        this.chairX = x - W/7;
-        this.chairY = y;
-        this.chairW = 30;
-        this.dishX = x - 60;
-        this.dishY = y;
+        this.emptyTableX = x;
+        this.emptyTableY = y;
+        this.chairW = 300;
+        this.chairH = 200;
+        this.chairX = coordinates.chairX;
+        this.chairY = coordinates.chairY;
+        this.dishX = coordinates.chairX;
+        this.dishY = coordinates.chairY + 40;
         this.hasMoney = false;
-        this.moneyX = x - 25;
-        this.moneyY = y - 70;
+        this.moneyX = coordinates.x - 25;
+        this.moneyY = coordinates.y - 70;
+
+        const tableImage = document.createElement('img');
+        tableImage.onload = () => {
+          this.image = tableImage;
+          this.imageW = w;
+          this.imageH = h;
+        }
+        tableImage.src = './img/table.png';
     }
 
     draw() {
-        // table
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.arc(this.x, this.y, 100, 0, Math.PI * 2);
-        ctx.fillStyle = `blue`;
-        ctx.fill();
-        ctx.stroke();
+        if (!this.image) return; // if `this.img` is not loaded yet => don't draw
 
-        // seat
-        ctx.beginPath();
-        ctx.moveTo(this.chairX, this.chairY);
-        ctx.arc(this.chairX, this.chairY, 30, 0, Math.PI * 2);
-        ctx.fillStyle = `orange`;
-        ctx.fill();
-        ctx.stroke();
+        ctx.drawImage(this.image, this.x-this.w/2, this.y-this.h/2, this.imageW, this.imageH);
 
         if(this.hasMoney) {
             // money
