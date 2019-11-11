@@ -13,6 +13,7 @@ class Waiter extends DynamicComponent {
         super(w,h,x,y,iX,iY,id,name,status);
         
         this.animated = false;
+        this.animationFrequency = Math.floor(Math.random() * 400) + 200; // between 200 and 600 
         this.currentAnimationFrame = 0;
         this.animationCounter = 0;
 
@@ -44,7 +45,7 @@ class Waiter extends DynamicComponent {
             }
         }
 
-        if(frames % 300 === 0) {
+        if(frames % this.animationFrequency === 0) {
             this.animated = true;
         }
 

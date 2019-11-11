@@ -29,6 +29,7 @@ class Customer extends DynamicComponent {
         
         this.favoriteDish = this.chooseDish();
         this.animated = false;
+        this.animationFrequency = Math.floor(Math.random() * 500) + 300; // between 300 and 800 
         this.currentAnimationFrame = 0;
         this.animationCounter = 0;
         const bubbleImage = document.createElement('img');
@@ -51,7 +52,7 @@ class Customer extends DynamicComponent {
             }
         }
 
-        if(frames % 300 === 0) {
+        if(frames % this.animationFrequency === 0) {
             this.animated = true;
         }
 
