@@ -146,13 +146,22 @@ class Customer extends DynamicComponent {
         var bubbleX = this.x + bubbleW/4;
         var bubbleY = this.y - bubbleH;
 
+        // notable
+        var noTableW = 80;
+        var noTableH = 80;
+        var noTableX = this.x + bubbleW/2 - 1;
+        var noTableY = this.y - bubbleH + 23;
+
+        const noTableImage = document.createElement('img');
+        noTableImage.onload = () => {
+        }
+        noTableImage.src = './img/notable.png';
+
         // display both
         if (!this.bubbleImage) return;
+        if (!noTableImage) return;
 
         ctx.drawImage(this.bubbleImage, bubbleX, bubbleY, bubbleW, bubbleH);
-        ctx.font = "bold 30px Open Sans";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.fillText("meow!", bubbleX+75, bubbleY+80);
+        ctx.drawImage(noTableImage, noTableX, noTableY, noTableW, noTableH);
     }
 }

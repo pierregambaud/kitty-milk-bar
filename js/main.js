@@ -11,7 +11,7 @@ let waiterJournal = [];
 let customersJournal = [];
 let dishesJournal = [];
 let timedEventsJournal = [];
-let gameover;
+let gameover = {status:false};
 let frames = 0;
 let moneyTarget = 120;
 let money = 0;
@@ -438,7 +438,7 @@ function drawTime() {
             });
 
             if(tablesAllCleaned) { // then game is finished
-                gameover = true;
+                gameover = {status:true};
             }
         }
     } else {
@@ -491,8 +491,7 @@ function createNew(componentName, customer) { // customer for dish only (custome
     
     // if availability is still false, it means all spots are taken: game over
     if(!availableSpot) { 
-        gameover = true;
-        console.log(`game over`);
+        gameover = {status:true, reason:`spotAvailability`, component:componentName};
     }
 
     availableSpot = null;
@@ -573,8 +572,75 @@ function animLoop() {
 
     draw();
   
-    if (!gameover) {
+    if (!gameover.status) { // {status:true, reason:`time`, component:`customer OR dish`}
         requestAnimationFrame(animLoop);
+    } else {
+        var profit = money - moneyTarget;
+
+        if(!gameover.reason && Math.sign(profit) === -1) {
+            gameover = {status:true, reason:`money`}
+        }
+
+        // write the message
+        if(gameover.reason) {
+            // background color
+            ctx.fillStyle = '#f0c9c9';
+            ctx.fillRect(0,0,W,H);
+
+            // text
+            ctx.font = "bold 80px Open Sans";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.fillText(`A SAD DAY`, W/2, 340);
+    
+            switch(gameover.reason) {
+                case `money`:
+                    ctx.font = "bold 50px Open Sans";
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "#feeded";
+                    ctx.fillText(`NEEDED: ${moneyTarget}€`, W/2, 530);
+                    ctx.fillStyle = "#f4faf3";
+                    ctx.fillText(`EARNED: ${money}€`, W/2, 590);
+                    ctx.fillStyle = "#feeded";
+                    ctx.font = "bold 60px Open Sans";
+                    ctx.fillText(`LOSS: ${Math.abs(profit)}€`, W/2, 730);
+                    break;
+                case `spotAvailability`:
+                    ctx.font = "bold 50px Open Sans";
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "#feeded";
+                    ctx.fillText(`REASON: TOO SLOW`, W/2, 530);
+                    ctx.fillStyle = "#f4faf3";
+                    ctx.font = "bold 60px Open Sans";
+                    ctx.fillText(`BE FASTER TO SERVE THE CUSTOMERS`, W/2, 730);
+                    break;
+            }
+        } else {
+            // background color
+            ctx.fillStyle = '#bad7df';
+            ctx.fillRect(0,0,W,H);
+
+            // text
+            ctx.font = "bold 80px Open Sans";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.fillText(`A SUCCESSFUL DAY!`, W/2, 340);
+
+            ctx.font = "bold 50px Open Sans";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#feeded";
+            ctx.fillText(`NEEDED: ${moneyTarget}€`, W/2, 530);
+            ctx.fillStyle = "#f4faf3";
+            ctx.fillText(`EARNED: ${money}€`, W/2, 590);
+            ctx.font = "bold 60px Open Sans";
+            ctx.fillText(`PROFIT: ${profit}€`, W/2, 730);
+        }
+        
+        // reset game
+        ctx.font = "bold 30px Open Sans";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`PLAY AGAIN?`, W/2, 900);
     }
 }
 
