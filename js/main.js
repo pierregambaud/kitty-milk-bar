@@ -253,22 +253,30 @@ function draw() {
                                     })
                                 })
                                 removeFromJournal(`events`,timedEvent.id);
-                                customer.status = `isLeavingRestaurant`;
-                                addToJournal(`customers`, customer.id, {x:-100, y:-100});
+                                customer.status = `isReachingTheExitDoor`;
+                                addToJournal(`customers`, customer.id, {x:700, y:690}); // same y as lobby.y
                             }
                         }
                     });
                     break;
                 
-                // 12: customer is leaving
+                // 12: customer is reaching the center of the canvas before exit door
+                case `isReachingTheExitDoor`:
+                    if(customer.x === 700 && customer.y === 690 && customer.status === "isReachingTheExitDoor") { // same x & y as in the journal in isEating case
+                        customer.status = `isLeavingRestaurant`;
+                        addToJournal(`customers`, customer.id, {x:W+100, y:690});
+                    }
+                    break;
+
+                // 13: customer is leaving
                 case `isLeavingRestaurant`:
                     // if customer has left the canvas visible area, means he's gone
-                    if(Math.sign(customer.x) === -1 && Math.sign(customer.y) === -1) {
+                    if(customer.x === W+100 && customer.y === 690) { // same x & y as in the journal in isReachingTheExitDoor case
                         customer.status = `isGone`;
                     }
                     break;
                 
-                // 13: the money is collected and the table is cleaned by the 
+                // 14: the money is collected and the table is cleaned by the 
                 case `isGone`:
                     if(dishes.length !== 0) {
                         dishes.forEach(function(dish) {
@@ -295,8 +303,6 @@ function draw() {
 // IMPORTANT FOR RESPONSIVE: convert clic according to canvas height and width
 let x0;
 let y0;
-let xMax;
-let yMax;
 let w;
 let h;
 
@@ -304,8 +310,6 @@ function dims() {
   const bbox = $canvas.getBoundingClientRect();
   x0 = bbox.left;
   y0 = bbox.top;
-  xMax = bbox.right;
-  yMax = bbox.bottom;
   w = bbox.right - bbox.left;
   h = bbox.bottom - bbox.top;
 }
@@ -317,16 +321,11 @@ window.onresize = dims;
 document.addEventListener('click', function(event) {
     var clickX = event.pageX;
     var clickY = event.pageY;
-    var distanceBetweenRightCanvasAndRightWindow = W - xMax;
-    var distanceBetweenBottomCanvasAndBottomWindow = H - yMax;
-    console.log(distanceBetweenRightCanvasAndRightWindow, distanceBetweenBottomCanvasAndBottomWindow)
    
     clickX -= x0;
     clickY -= y0;
     clickX *= W / w;
     clickY *= H / h;
-
-    console.log(`x: `,clickX,`y: `, clickY)
 
     // check if a validated interactive element has been clicked on
     function checkWaiterInteractionWith(component,x,y) {
