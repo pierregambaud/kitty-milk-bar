@@ -281,6 +281,8 @@ function draw() {
 // IMPORTANT FOR RESPONSIVE: convert clic according to canvas height and width
 let x0;
 let y0;
+let xMax;
+let yMax;
 let w;
 let h;
 
@@ -288,8 +290,10 @@ function dims() {
   const bbox = $canvas.getBoundingClientRect();
   x0 = bbox.left;
   y0 = bbox.top;
+  xMax = bbox.right;
+  yMax = bbox.bottom;
   w = bbox.right - bbox.left;
-  h = bbox.bottom - bbox.top
+  h = bbox.bottom - bbox.top;
 }
 dims();
 window.onresize = dims;
@@ -299,11 +303,14 @@ window.onresize = dims;
 document.addEventListener('click', function(event) {
     var clickX = event.pageX;
     var clickY = event.pageY;
-    
+    var distanceBetweenRightCanvasAndRightWindow = W - xMax;
+    var distanceBetweenBottomCanvasAndBottomWindow = H - yMax;
+    console.log(distanceBetweenRightCanvasAndRightWindow, distanceBetweenBottomCanvasAndBottomWindow)
+   
     clickX -= x0;
     clickY -= y0;
-    clickX *= W/w;
-    clickY *= H/h;
+    clickX *= W / w;
+    clickY *= H / h;
 
     console.log(`x: `,clickX,`y: `, clickY)
 
@@ -331,7 +338,7 @@ document.addEventListener('click', function(event) {
             surfaceRight = component.x + servingHatch.w / 5 / 2;
             surfaceBottom = component.y + servingHatch.h / 2;
             surfaceLeft = component.x - servingHatch.w / 5 / 2;   
-        } else { // all other components
+        } else if (component.favoriteDish) { // if it is a customer
             surfaceTop = component.y - component.h / 2;
             surfaceRight = component.x + component.w / 2;
             surfaceBottom = component.y + component.h / 2;
