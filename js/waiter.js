@@ -3,7 +3,7 @@ class Waiter extends DynamicComponent {
         var w = 180;
         var h = 180;
         var x = W/2;
-        var y = H/2;
+        var y = 780; // same value as customer.y
         var iX = null;
         var iY = null;
         var id = 1;

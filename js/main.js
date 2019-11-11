@@ -45,12 +45,6 @@ function draw() {
     // draw time
     drawTime();
 
-    // draw welcome lobby
-    lobby.draw();
-
-    // draw serving hatch
-    servingHatch.draw();
-
     // draw each customer checking its journal position (defaut: its own position)
     if(numberOfCustomersCreated === 0) {
         createNew(`customer`); // first customer
@@ -68,6 +62,9 @@ function draw() {
         waiter.moveTo(`waiter`, waiter.id, waiterJournal[0].x, waiterJournal[0].y);
     }
     waiter.draw();
+
+    // draw serving hatch
+    servingHatch.draw();
 
     // draw each dish checking its journal position (defaut: its own position)
     drawArray(`dishes`, dishes, dishesJournal);
@@ -308,7 +305,7 @@ document.addEventListener('click', function(event) {
     clickX *= W/w;
     clickY *= H/h;
 
-        console.log(`x: `,clickX,`y: `, clickY)
+    console.log(`x: `,clickX,`y: `, clickY)
 
     // check if a validated interactive element has been clicked on
     function checkWaiterInteractionWith(component,x,y) {
@@ -329,16 +326,19 @@ document.addEventListener('click', function(event) {
                 surfaceRight = component.x + component.w / 2;
                 surfaceLeft = component.chairX - component.w / 2;
             }
-            console.log(`top: `,surfaceTop,`right: `,surfaceRight,` bottom:`,surfaceBottom,` left:`,surfaceLeft)
+        } else if (component.price) { // if it is a dish
+            surfaceTop = component.y - servingHatch.h / 2;
+            surfaceRight = component.x + servingHatch.w / 5 / 2;
+            surfaceBottom = component.y + servingHatch.h / 2;
+            surfaceLeft = component.x - servingHatch.w / 5 / 2;   
         } else { // all other components
             surfaceTop = component.y - component.h / 2;
             surfaceRight = component.x + component.w / 2;
             surfaceBottom = component.y + component.h / 2;
-            surfaceLeft = component.x - component.w / 2;      
+            surfaceLeft = component.x - component.w / 2;   
         }
 
         if(x < surfaceRight && x > surfaceLeft && y > surfaceTop && y < surfaceBottom) {
-            console.log(`hit`);
             addToJournal(`waiter`, waiter.id, {x:component.interactionX, y:component.interactionY});
         }
     }

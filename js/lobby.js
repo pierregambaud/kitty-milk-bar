@@ -1,9 +1,9 @@
 class Lobby extends Component {
     constructor() {
-        var w = W/4;
-        var h = H/10;
+        var w = 320;
+        var h = 150;
         var x = 0;
-        var y = H/2-h/2;
+        var y = 760;
         var iX = null;
         var iY = null;
 
@@ -11,12 +11,15 @@ class Lobby extends Component {
 
         var minimumDistanceFromRightBorder = 80;
         var distanceBetweenSpot = 160;
+        var distanceFromTopCarpet = 20;
 
-        this.customersSpots = [{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*0, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*1, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*2, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*3, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*4, y: this.y + this.w / 3, available: true},{x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*5, y: this.y + this.w / 3, available: true}];
-    }
-
-    draw() {
-        ctx.fillStyle = `red`;
-        ctx.fillRect(this.x, this.y, this.w, this.h);
+        this.customersSpots = [
+            {x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*0, y: this.y + distanceFromTopCarpet, available: true},
+            {x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*1, y: this.y + distanceFromTopCarpet, available: true},
+            {x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*2, y: this.y + distanceFromTopCarpet, available: true},
+            {x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*3, y: this.y + distanceFromTopCarpet, available: true},
+            {x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*4, y: this.y + distanceFromTopCarpet, available: true},
+            {x: this.x + this.w - minimumDistanceFromRightBorder - distanceBetweenSpot*5, y: this.y + distanceFromTopCarpet, available: true}
+        ];
     }
 }

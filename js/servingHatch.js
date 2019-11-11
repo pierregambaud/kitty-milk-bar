@@ -1,26 +1,38 @@
 class ServingHatch extends Component {
     constructor() {
-        var w = W/10;
-        var h = H/4;
-        var x = W-w;
-        var y = H/2-h/2;
+        var w = 500;
+        var h = 30;
+        var x = 0;
+        var y = H-80;
         var iX = null;
         var iY = null;
 
         super(w,h,x,y,iX,iY);
 
+        var distanceFromLeftCanvas = 100;
+        var distanceBetweenDishes = 100;
+
         this.dishesSpots = [
-            {x: this.x + this.w / 2, y: this.y + (this.h / 8), available: true},
-            {x: this.x + this.w / 2, y: this.y + (this.h / 8) * 2, available: true},
-            {x: this.x + this.w / 2, y: this.y + (this.h / 8) * 3, available: true},
-            {x: this.x + this.w / 2, y: this.y + (this.h / 8) * 4, available: true},
-            {x: this.x + this.w / 2, y: this.y + (this.h / 8) * 5, available: true},
-            {x: this.x + this.w / 2, y: this.y + (this.h / 8) * 6, available: true}
+            {x: this.x + distanceFromLeftCanvas, y: this.y + this.h / 2, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 1, y: this.y + this.h / 2, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 2, y: this.y + this.h / 2, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 3, y: this.y + this.h / 2, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 4, y: this.y + this.h / 2, available: true}
         ];
+
+        const servingHatchImage = document.createElement('img');
+        servingHatchImage.onload = () => {
+          this.image = servingHatchImage;
+          this.imageW = 628;
+          this.imageH = 100;
+          this.imageX = 0;
+          this.imageY = H - this.imageH;
+        }
+        servingHatchImage.src = './img/servinghatch.png';
     }
 
-    draw() {
-        ctx.fillStyle = `green`;
-        ctx.fillRect(this.x, this.y, this.w, this.h);
+    draw() { // draw it to hide waiter body when picking up a dish
+        if (!this.image) return; // if `this.img` is not loaded yet => don't draw
+        ctx.drawImage(this.image, this.imageX, this.imageY, this.imageW, this.imageH);
     }
 }

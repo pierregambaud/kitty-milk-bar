@@ -1,21 +1,18 @@
 class Customer extends DynamicComponent {
     constructor(id) {
+        // common with DynamicComponent
         var w = 180;
         var h = 180;
-        var x = 0;
-        var y = H/2;
-        var iX = w + W/6;
-        var iY = H/2;
+        var x = -100; // outsite the canvas
+        var y = 780; // same value as lobby.y + distanceFromTopCarpet => aligned with the red carpet for its entry
+        var iX = 420; // lobby.x + lobby.w + minimumDistanceFromRightBorder + 20
+        var iY = y;
         var name = `customer` + id;
         var status = `isEnteringTheRestaurant`;
 
-        super(w,h,x,y,iX,iY,id,name,status);
+        super(w,h,x,y,iX,iY,id,name,status); // push to DynamicComponent
 
-        this.favoriteDish = this.chooseDish();
-        this.animated = false;
-        this.currentAnimationFrame = 0;
-        this.animationCounter = 0;
-
+        // specific to customer
         const customerImage = document.createElement('img');
         customerImage.onload = () => {
           this.image = customerImage;
@@ -29,7 +26,11 @@ class Customer extends DynamicComponent {
           this.spriteH = this.imageH / this.imageRows;
         }
         customerImage.src = './img/customer.png';
-
+        
+        this.favoriteDish = this.chooseDish();
+        this.animated = false;
+        this.currentAnimationFrame = 0;
+        this.animationCounter = 0;
         const bubbleImage = document.createElement('img');
         bubbleImage.onload = () => {
             this.bubbleImage = bubbleImage;

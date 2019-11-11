@@ -2,8 +2,8 @@ class Dish extends DynamicComponent {
     constructor(x,y,dishId,customerId,dish) {
         var w = 100;
         var h = 100;
-        var iX = h + x - 150;
-        var iY = y;
+        var iX = x;
+        var iY = y - 50;
         var name = dish.name;
         var status = `isReadyToBeServed`;
 
