@@ -203,6 +203,7 @@ function draw() {
                                             dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
                                             dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
                                             customer.status = `isReceivingTheDish`;
+                                            addToJournal(`events`, customer.id, {type:`isEating`,dishId:dish.id,frames:frames+300}); // the customer will finish eating in 300 frames
                                         }
                                     }
                                 });
@@ -216,7 +217,6 @@ function draw() {
                 
                 // 10: he receives the dish and starts eating
                 case `isReceivingTheDish`:
-                    addToJournal(`events`, customer.id, {type:`isEating`,frames:frames+300}); // the dish will be available in 300 frames
                     customer.status = `isEating`;
                     break;
 
@@ -226,7 +226,7 @@ function draw() {
                         if(timedEvent.id === customer.id && timedEvent.type === `isEating`) {
                             if(timedEvent.frames === frames) {
                                 dishes.forEach(function(dish) {
-                                    if(dish.id === timedEvent.id) {
+                                    if(dish.id === timedEvent.dishId) { // FIXME && dish.status === "isBeingEaten"
                                         dish.status = `isEmpty`;
                                     }
 
@@ -508,7 +508,7 @@ function addToJournal(componentName,idOfComponent,details) {
             dishesJournal.push({id:idOfComponent, x:details.x, y:details.y});
             break;
         case `events`:
-            timedEventsJournal.push({id:idOfComponent, type:details.type, frames:details.frames});
+            timedEventsJournal.push({id:idOfComponent, type:details.type, dishId:details.dishId, frames:details.frames});
             break;
     }
 }
