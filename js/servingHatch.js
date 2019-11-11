@@ -14,11 +14,11 @@ class ServingHatch extends Component {
 
         this.dishesSpots = [
             {x: this.x + distanceFromLeftCanvas, y: this.y + this.h / 2, available: true},
-            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 1, y: this.y + this.h / 2, available: true},
-            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 2, y: this.y + this.h / 2, available: true},
-            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 3, y: this.y + this.h / 2, available: true},
-            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 4, y: this.y + this.h / 2, available: true}
-        ];
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 1, y: this.y + this.h / 2 + 1, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 2, y: this.y + this.h / 2 + 2, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 3, y: this.y + this.h / 2 + 3, available: true},
+            {x: this.x + distanceFromLeftCanvas + distanceBetweenDishes * 4, y: this.y + this.h / 2 + 4, available: true}
+        ]; // +1 for each y to be sure the dish won't be taken by mistake by the waiter on its way to the first dishes
 
         const servingHatchImage = document.createElement('img');
         servingHatchImage.onload = () => {
