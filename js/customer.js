@@ -137,4 +137,21 @@ class Customer extends DynamicComponent {
         ctx.drawImage(this.bubbleImage, bubbleX, bubbleY, bubbleW, bubbleH);
         ctx.drawImage(orderedDishImage, orderedDishSpriteX, orderedDishSpriteY, orderedDishSpriteW, orderedDishSpriteH, orderedDishX, orderedDishY, orderedDishW, orderedDishH);
     }
+
+    showNoMoreTableAvailable() {
+        // bubble
+        var bubbleW = 150;
+        var bubbleH = 150;
+        var bubbleX = this.x + bubbleW/4;
+        var bubbleY = this.y - bubbleH;
+
+        // display both
+        if (!this.bubbleImage) return;
+
+        ctx.drawImage(this.bubbleImage, bubbleX, bubbleY, bubbleW, bubbleH);
+        ctx.font = "bold 30px Open Sans";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("meow!", bubbleX+75, bubbleY+80);
+    }
 }

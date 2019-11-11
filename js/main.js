@@ -13,6 +13,7 @@ let dishesJournal = [];
 let timedEventsJournal = [];
 let gameover;
 let frames = 0;
+let moneyTarget = 120;
 let money = 0;
 let customersFlux;
 
@@ -88,11 +89,22 @@ function draw() {
                 case `isStandingInLine`:
                     // if waiter walks in the interaction zone of the customer
                     if(waiter.x === customer.interactionX && waiter.y === customer.interactionY && waiter.status === `isAvailable`) {
-                        customer.status = `isFollowingTheWaiter`;
-                        waiter.status = `isTakingCustomerToATable`;
+                        var oneTableIsAvailable = false;
+                        tables.forEach(function(table) {
+                            if(table.available === true) {
+                                oneTableIsAvailable = true;
+                            }
+                        });
 
-                        lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
-                        updateLobbySpots(); // update customers positions in the lobby
+                        if(oneTableIsAvailable) {
+                            customer.status = `isFollowingTheWaiter`;
+                            waiter.status = `isTakingCustomerToATable`;
+
+                            lobby.customersSpots[0].available = true; // the first spot of the lobby is now available again
+                            updateLobbySpots(); // update customers positions in the lobby
+                        } else if(customer.x === lobby.customersSpots[0].x && customer.y === lobby.customersSpots[0].y) { // only the fist customer of the line says it
+                            customer.showNoMoreTableAvailable();
+                        }
                     }
                     break;
                 
@@ -392,10 +404,18 @@ function drawBackground() {
 
 // function to display score / money
 function drawScore() {
-    ctx.font = "50px Open Sans";
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.fillText(`Cash: $${money}`, W - 180, 90);
+
+    // target
+    ctx.font = "bold 32px Open Sans";
+    ctx.fillStyle = "#ff7272";
+    ctx.textAlign = "right";
+    ctx.fillText(`${moneyTarget}`, 945, 1178);
+
+    // real
+    ctx.font = "bold 32px Open Sans";
+    ctx.fillStyle = "#4ee660";
+    ctx.textAlign = "right";
+    ctx.fillText(`${money}`, 945, 1223);
 }
 
 // function to display time (based on frames)
