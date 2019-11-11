@@ -3,7 +3,7 @@ class ServingHatch extends Component {
         var w = 500;
         var h = 30;
         var x = 0;
-        var y = H-80;
+        var y = H-120;
         var iX = null;
         var iY = null;
 
@@ -23,8 +23,8 @@ class ServingHatch extends Component {
         const servingHatchImage = document.createElement('img');
         servingHatchImage.onload = () => {
           this.image = servingHatchImage;
-          this.imageW = 628;
-          this.imageH = 100;
+          this.imageW = 624;
+          this.imageH = 124;
           this.imageX = 0;
           this.imageY = H - this.imageH;
         }
