@@ -16,12 +16,16 @@ let frames = 0;
 let money = 0;
 let customersFlux;
 
-const canvas = document.getElementById('game-board');
-const canvasLeft = canvas.offsetLeft;
-const canvasTop = canvas.offsetTop;
-const ctx = document.querySelector('canvas').getContext('2d');
-const W = ctx.canvas.width;
-const H = ctx.canvas.height;
+// game mecanism
+const $canvas = document.querySelector('canvas');
+const ctx = $canvas.getContext('2d');
+const W = $canvas.width;
+const H = $canvas.height;
+
+// const canvasLeft = $canvas.offsetLeft;
+// const canvasTop = $canvas.offsetTop;
+
+// game settings
 const menu = [{name: `Chocolate Milkshake`, price:10}, {name: `Strawberry Milkshake`, price:12}, {name: `Vanilla Milkshake`, price:14}];
 
 
@@ -276,10 +280,33 @@ function draw() {
     }
 }
 
+
+// IMPORTANT FOR RESPONSIVE: convert clic according to canvas height and width
+let x0;
+let y0;
+let w;
+let h;
+
+function dims() {
+  const bbox = $canvas.getBoundingClientRect();
+  x0 = bbox.left;
+  y0 = bbox.top;
+  w = bbox.right - bbox.left;
+  h = bbox.bottom - bbox.top
+}
+dims();
+window.onresize = dims;
+
+
 // listen to clicks
-canvas.addEventListener('click', function(event) {
-    var clickX = event.pageX - canvasLeft,
-        clickY = event.pageY - canvasTop;
+document.addEventListener('click', function(event) {
+    var clickX = event.pageX;
+    var clickY = event.pageY;
+    
+    clickX -= x0;
+    clickY -= y0;
+    clickX *= W/w;
+    clickY *= H/h;
 
         console.log(`x: `,clickX,`y: `, clickY)
 
@@ -352,7 +379,7 @@ function drawBackground() {
     var backgroundH = H;
     var backgroundX = 0;
     var backgroundY = 0;
-    
+
     ctx.drawImage(backgroundImage, backgroundX, backgroundY, backgroundW, backgroundH);
 }
 

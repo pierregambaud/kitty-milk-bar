@@ -45,7 +45,7 @@ body button {
     align-items:center;
 }
 #game-board canvas {
-    /* width:500px;
-    height:700px; */
-/* object-fit:contain; */
+    width:500px;
+    height:700px;
+    object-fit:contain;
 }
