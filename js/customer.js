@@ -4,7 +4,7 @@ class Customer extends DynamicComponent {
         var w = 180;
         var h = 180;
         var x = -100; // outsite the canvas
-        var y = 780; // same value as lobby.y + distanceFromTopCarpet => aligned with the red carpet for its entry
+        var y = 710; // same value as lobby.y + distanceFromTopCarpet => aligned with the red carpet for its entry
         var iX = 420; // lobby.x + lobby.w + minimumDistanceFromRightBorder + 20
         var iY = y;
         var name = `customer` + id;

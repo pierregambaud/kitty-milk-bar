@@ -3,7 +3,7 @@ class Lobby extends Component {
         var w = 320;
         var h = 150;
         var x = 0;
-        var y = 760;
+        var y = 690;
         var iX = null;
         var iY = null;
 
