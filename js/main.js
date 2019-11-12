@@ -16,6 +16,7 @@ let frames = 0;
 let moneyTarget = 120;
 let money = 0;
 let customersFlux;
+let raf;
 
 // game mecanism
 const $canvas = document.querySelector('canvas');
@@ -573,7 +574,7 @@ function animLoop() {
     draw();
   
     if (!gameover.status) { // {status:true, reason:`time`, component:`customer OR dish`}
-        requestAnimationFrame(animLoop);
+        raf = requestAnimationFrame(animLoop);
     } else {
         var profit = money - moneyTarget;
 
@@ -652,6 +653,11 @@ function pushToInteractivesElements(array) {
 
 // function startgame
 function startGame() {
+    // cancel animation if game has already been started before
+    if (raf) {
+        cancelAnimationFrame(raf);
+    }
+    
     // fill each component array
     var table1Coordinates = {x: 200, y: 510, chairX: 100+205, chairY: 410+10};
     var table2Coordinates = {x: W-200, y: 510, chairX: W-200-100-5, chairY: 410+10};
@@ -666,7 +672,7 @@ function startGame() {
     // fill interactiveElements array
     pushToInteractivesElements(tables);
     
-    requestAnimationFrame(animLoop);
+    raf = requestAnimationFrame(animLoop);
 }
 
 // function reset
