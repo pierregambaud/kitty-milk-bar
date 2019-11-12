@@ -650,12 +650,8 @@ function pushToInteractivesElements(array) {
     array.forEach(element => interactiveElements.push(element))
 }
 
-
+// function startgame
 function startGame() {
-    waiter = new Waiter();
-    lobby = new Lobby();
-    servingHatch = new ServingHatch();
-
     // fill each component array
     var table1Coordinates = {x: 200, y: 510, chairX: 100+205, chairY: 410+10};
     var table2Coordinates = {x: W-200, y: 510, chairX: W-200-100-5, chairY: 410+10};
@@ -673,4 +669,32 @@ function startGame() {
     requestAnimationFrame(animLoop);
 }
 
-startGame();
+// function reset
+function reset() {
+    waiter = new Waiter();
+    lobby = new Lobby();
+    servingHatch = new ServingHatch();
+    tables.length = 0;
+    customers.length = 0;
+    numberOfCustomersCreated = 0;
+    dishes.length = 0;
+    numberOfDishesCreated = 0;
+    interactiveElements.length = 0;
+    waiterJournal.length = 0;
+    customersJournal.length = 0;
+    dishesJournal.length = 0;
+    timedEventsJournal.length = 0;
+    gameover = {status:false};
+    frames = 0;
+    moneyTarget = 120;
+    money = 0;
+    clearTimeout(customersFlux);
+}
+
+// listen to #star-button to launch the game
+const $start = document.getElementById("start-button");
+$start.onclick = function() {
+    $start.blur();
+    reset();
+    startGame();
+};
