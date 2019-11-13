@@ -365,6 +365,12 @@ document.addEventListener('click', function(event) {
     }
 
     interactiveElements.forEach(element => checkWaiterInteractionWith(element,clickX,clickY));
+
+    // specific event after gameover screen is displayed
+    if(gameover.status === true) {
+        reset();
+        startGame();
+    }
     
 }, false);
 
@@ -657,7 +663,7 @@ function startGame() {
     if (raf) {
         cancelAnimationFrame(raf);
     }
-    
+
     // fill each component array
     var table1Coordinates = {x: 200, y: 510, chairX: 100+205, chairY: 410+10};
     var table2Coordinates = {x: W-200, y: 510, chairX: W-200-100-5, chairY: 410+10};
@@ -700,7 +706,6 @@ function reset() {
 // listen to #star-button to launch the game
 const $start = document.getElementById("start-button");
 $start.onclick = function() {
-    $start.blur();
     reset();
     startGame();
 };
