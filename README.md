@@ -25,10 +25,13 @@ Nothing special: a browser and a code editor.
 
 Simply open index.html
 
+### Playing online
+
+Play it right now by [clicking here](https://pierregambaud.github.io/kitty-milk-bar/).
 
 ## Author
 
-* **Pierre Gambaud** - (https://github.com/pierregambaud)
+* **Pierre Gambaud** - https://github.com/pierregambaud
 
 
 ## Acknowledgments
