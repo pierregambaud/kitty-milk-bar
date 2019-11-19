@@ -30,6 +30,17 @@ class Waiter extends DynamicComponent {
           this.spriteH = this.imageH / this.imageRows;
         }
         waiterImage.src = './img/waiter.png';
+
+        // speech bubble
+        const bubbleImage = document.createElement('img');
+        bubbleImage.onload = () => {
+            this.bubbleImage = bubbleImage;
+            this.bubbleW = 150;
+            this.bubbleH = 150;
+            this.bubbleRelativeX = this.bubbleW / 4; // need to add this.x when called
+            this.bubbleRelativeY = - this.bubbleH; // need to add this.y when called
+        }
+        bubbleImage.src = './img/bubble.png';
     }
 
     draw() {
@@ -67,5 +78,18 @@ class Waiter extends DynamicComponent {
         }
 
         ctx.drawImage(this.image, this.spriteX, this.spriteY, this.spriteW, this.spriteH, this.x-this.w/2, this.y-this.h/2, this.w, this.h);
+    }
+
+    sayHello() { // FIXME show table img
+        if (!this.bubbleImage) return
+
+        let textMarginLeft = 75;
+        let textMarginTop = 80;
+
+        ctx.drawImage(this.bubbleImage, this.bubbleRelativeX + this.x, this.bubbleRelativeY + this.y, this.bubbleW, this.bubbleH);
+        ctx.font = "bold 30px Open Sans";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("meow", this.bubbleRelativeX + this.x + textMarginLeft, this.bubbleRelativeY + this.y + textMarginTop);
     }
 }

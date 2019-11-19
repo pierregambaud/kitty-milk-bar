@@ -100,15 +100,32 @@ function draw() {
                         if(oneTableIsAvailable) {
                             customer.status = `isFollowingTheWaiter`;
                             waiter.status = `isTakingCustomerToATable`;
+                            addToJournal(`events`, waiter.id, {type:`sayHello`,frames:frames+50,componentName:`waiter`});
                         } else if(customer.x === lobby.customersSpots[0].x && customer.y === lobby.customersSpots[0].y) { // only the fist customer of the line says it
                             customer.showNoMoreTableAvailable();
                         }
+                    } else if (customer.x === lobby.customersSpots[0].x && customer.y === lobby.customersSpots[0].y) {
+                        customer.sayHello(); // display speech bubble
                     }
                     break;
                 
                 // 3. he follows the waiter
                 case `isFollowingTheWaiter`:
                     customer.follow(waiter,customer.w + 20);
+                    
+                    // during 100 frames, waiter.sayHello() then customer.sayHello() 
+                    timedEventsJournal.forEach(function(timedEvent) {
+                        if(timedEvent.componentName === `waiter` && timedEvent.type === `sayHello`) {
+                            if(timedEvent.frames <= frames) {
+                                removeFromJournal(`events`,timedEvent.id); // remove waiter sayHello event
+                            } else {
+                                waiter.sayHello(); // display speech bubble
+                            }
+                        }
+                    });
+                    
+                    
+                    
 
                     // if the waiter reaches one of the EMPTY tables while customer stops following him and goes for his chair
                     tables.forEach(function (table) {
@@ -218,7 +235,7 @@ function draw() {
                                             dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
                                             dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
                                             customer.status = `isReceivingTheDish`;
-                                            addToJournal(`events`, customer.id, {type:`isEating`,dishId:dish.id,frames:frames+300}); // the customer will finish eating in 300 frames
+                                            addToJournal(`events`, customer.id, {type:`isEating`,frames:frames+300,dishId:dish.id}); // the customer will finish eating in 300 frames
                                         }
                                     }
                                 });
@@ -241,7 +258,7 @@ function draw() {
                         if(timedEvent.id === customer.id && timedEvent.type === `isEating`) {
                             if(timedEvent.frames === frames) {
                                 dishes.forEach(function(dish) {
-                                    if(dish.id === timedEvent.dishId) { // FIXME && dish.status === "isBeingEaten"
+                                    if(dish.id === timedEvent.dishId) {
                                         dish.status = `isEmpty`;
                                     }
 
@@ -542,7 +559,7 @@ function addToJournal(componentName,idOfComponent,details) {
             dishesJournal.push({id:idOfComponent, x:details.x, y:details.y});
             break;
         case `events`:
-            timedEventsJournal.push({id:idOfComponent, type:details.type, dishId:details.dishId, frames:details.frames});
+            timedEventsJournal.push({id:idOfComponent, type:details.type, frames:details.frames, dishId:details.dishId, componentName:details.componentName});
             break;
     }
 }
