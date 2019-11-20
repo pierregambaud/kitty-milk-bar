@@ -7,7 +7,7 @@ class DynamicComponent extends Component {
         this.direction = `right`;
     }
 
-    moveTo(componentName,id,destinationX,destinationY) {
+    moveTo(componentName,journalEntryId,destinationX,destinationY) {
         var stepWidth = 10;
 
         // if component position closer than stepWidth value, then update position and finish moveTo
@@ -15,7 +15,7 @@ class DynamicComponent extends Component {
             // interaction destination reached, and removed from array of destinations
             this.x = destinationX;
             this.y = destinationY;
-            removeFromJournal(componentName,id);
+            removeFromJournal(componentName,journalEntryId);
         } else {
             // interaction destination not reached yet, updating x and y component
             if(Math.abs(destinationX-this.x) >= stepWidth) {
@@ -42,7 +42,7 @@ class DynamicComponent extends Component {
         } 
     }
 
-    follow(component,distanceBetweenComponents) {
+    follow(component,journalEntryId,distanceBetweenComponents) {
         var destinationX;
         var destinationY;
 
@@ -62,7 +62,7 @@ class DynamicComponent extends Component {
                 destinationY = this.y;
             }
 
-            this.moveTo(component,this.id,destinationX,destinationY);
+            this.moveTo(component,journalEntryId,destinationX,destinationY);
         }
     }
 }

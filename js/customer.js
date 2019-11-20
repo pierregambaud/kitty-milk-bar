@@ -28,6 +28,7 @@ class Customer extends DynamicComponent {
         customerImage.src = './img/customer.png';
         
         this.favoriteDish = this.chooseDish();
+        this.servedDishId = null;
         this.animated = false;
         this.animationFrequency = Math.floor(Math.random() * 500) + 300; // between 300 and 800 
         this.currentAnimationFrame = 0;

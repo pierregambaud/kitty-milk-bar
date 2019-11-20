@@ -1,5 +1,5 @@
 class Dish extends DynamicComponent {
-    constructor(x,y,dishId,customerId,dish) {
+    constructor(x,y,dishId,dish) {
         var w = 100;
         var h = 100;
         var iX = x;
@@ -10,7 +10,6 @@ class Dish extends DynamicComponent {
         super(w,h,x,y,iX,iY,dishId,name,status);
 
         this.price = dish.price;
-        this.customerId = customerId;
         this.currentAnimationFrame = 0;
 
         const bowlImage = document.createElement('img');

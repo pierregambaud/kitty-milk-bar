@@ -11,6 +11,7 @@ let waiterJournal = [];
 let customersJournal = [];
 let dishesJournal = [];
 let timedEventsJournal = [];
+let numberOfJournalEntryCreated = 0;
 let gameover = {status:false};
 let frames = 0;
 let moneyTarget = 120;
@@ -61,7 +62,7 @@ function draw() {
 
     // draw waiter checking his journal position (defaut: his own position)
     if (waiterJournal.length !== 0) {
-        waiter.moveTo(`waiter`, waiter.id, waiterJournal[0].x, waiterJournal[0].y);
+        waiter.moveTo(`waiter`, waiterJournal[0].id, waiterJournal[0].componentX, waiterJournal[0].componentY);
     }
     waiter.draw();
 
@@ -100,7 +101,7 @@ function draw() {
                         if(oneTableIsAvailable) {
                             customer.status = `isFollowingTheWaiter`;
                             waiter.status = `isTakingCustomerToATable`;
-                            addToJournal(`events`, waiter.id, {type:`sayHello`,frames:frames+50,componentName:`waiter`});
+                            addToJournal(`events`, waiter.id, {frames:frames+50,eventType:`sayHello`,componentName:`waiter`});
                         } else if(customer.x === lobby.customersSpots[0].x && customer.y === lobby.customersSpots[0].y) { // only the fist customer of the line says it
                             customer.showNoMoreTableAvailable();
                         }
@@ -111,11 +112,11 @@ function draw() {
                 
                 // 3. he follows the waiter
                 case `isFollowingTheWaiter`:
-                    customer.follow(waiter,customer.w + 20);
+                    customer.follow(waiter,numberOfJournalEntryCreated++,customer.w + 20);
                     
                     // during 100 frames, waiter.sayHello() then customer.sayHello() 
                     timedEventsJournal.forEach(function(timedEvent) {
-                        if(timedEvent.componentName === `waiter` && timedEvent.type === `sayHello`) {
+                        if(timedEvent.componentName === `waiter` && timedEvent.eventType === `sayHello`) {
                             if(timedEvent.frames <= frames) {
                                 removeFromJournal(`events`,timedEvent.id); // remove waiter sayHello event
                             } else {
@@ -135,7 +136,7 @@ function draw() {
                             updateLobbySpots(); // update customers positions in the lobby
 
                             // sit the customer
-                            addToJournal(`customers`, customer.id, {x:table.chairX,y:table.chairY}); // update the customers journal with the chair coordinates
+                            addToJournal(`customers`, customer.id, {componentX:table.chairX,componentY:table.chairY}); // update the customers journal with the chair coordinates
                             customer.status = `isSeating`;
                             waiter.status = `isAvailable`;
                             table.available = false;
@@ -158,7 +159,7 @@ function draw() {
 
                 // 5: he receives the menu
                 case `hasReceivedTheMenu`:
-                    addToJournal(`events`, customer.id, {type:`isReadingTheMenu`,frames:frames+300}); // reads the menu for 300 frames
+                    addToJournal(`events`, customer.id, {frames:frames+300,eventType:`isReadingTheMenu`}); // reads the menu for 300 frames
                     customer.status = `isReadingTheMenu`;
                     break;
                 
@@ -166,7 +167,7 @@ function draw() {
                 case `isReadingTheMenu`:
                     // after 300 frames, call the waiter
                     timedEventsJournal.forEach(function(timedEvent) {
-                        if(timedEvent.id === customer.id && timedEvent.type === `isReadingTheMenu`) {
+                        if(timedEvent.componentId === customer.id && timedEvent.eventType === `isReadingTheMenu`) {
                             if(timedEvent.frames === frames) {
                                 customer.status = `isWaitingToOrder`;
                                 removeFromJournal(`events`,timedEvent.id);
@@ -191,7 +192,7 @@ function draw() {
                 
                 // 8: once the waiter arrived, he places the order
                 case `isPlacingTheOrder`:
-                    addToJournal(`events`, customer.id, {type:`cookingTime`,frames:frames+300}); // the dish will be available in 300 frames
+                    addToJournal(`events`, customer.id, {frames:frames+300,eventType:`cookingTime`,dishName:customer.favoriteDish}); // the dish will be available in 300 frames
                     customer.status = `isWaitingForTheDish`;
                     waiter.status = `isAvailable`;
                     break;
@@ -201,9 +202,9 @@ function draw() {
                     customer.showOrderedDish();
 
                     timedEventsJournal.forEach(function(timedEvent) {
-                        if(timedEvent.id === customer.id && timedEvent.type === `cookingTime`) {
+                        if(timedEvent.componentId === customer.id && timedEvent.eventType === `cookingTime`) {
                             if(timedEvent.frames === frames) {
-                                createNew(`dish`,customer); // create and display a new dish
+                                createNew(`dish`,timedEvent.dishName); // create and display a new dish FIXME replace customer by name of dish in "hard" to prevent null customer if other plate served to him
                                 removeFromJournal(`events`,timedEvent.id);
                             }
                         }
@@ -228,19 +229,20 @@ function draw() {
                                 // when waiter arrives to the interaction coordinates of one of the tables
                                 tables.forEach(function (table) {
                                     if(waiter.x === table.interactionX && waiter.y === table.interactionY) { // if the waiter reaches the table
-                                        if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name && dish.customerId === customer.id ) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served
+                                        if(customer.x === table.chairX && customer.y === table.chairY && dish.name === customer.favoriteDish.name) { // if there is a match between what is ordered (by the customer sitten on the chair of this table) and what is served    && dish.customerId === customer.id
+                                            customer.servedDishId = dish.id;
                                             dish.status = `isLaidOnTheRightTable`;
                                             waiter.status = `isAvailable`;
-                                            addToJournal(`dishes`, dish.id, {x:table.dishX, y:table.dishY}); // update the dishes journal with the dish coordinates
+                                            addToJournal(`dishes`, customer.servedDishId, {componentX:table.dishX, componentY:table.dishY}); // update the dishes journal with the dish coordinates
                                             dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
                                             dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
                                             customer.status = `isReceivingTheDish`;
-                                            addToJournal(`events`, customer.id, {type:`isEating`,frames:frames+300,dishId:dish.id}); // the customer will finish eating in 300 frames
+                                            addToJournal(`events`, customer.id, {frames:frames+300,eventType:`isEating`,dishId:dish.id}); // the customer will finish eating in 300 frames
                                         }
                                     }
                                 });
                                 if(dish.status !== `isLaidOnTheRightTable`) {
-                                    dish.follow(waiter,5);
+                                    dish.follow(waiter,numberOfJournalEntryCreated++,5);
                                 }
                             }
                         })
@@ -255,10 +257,10 @@ function draw() {
                 // 11: once served, he eats
                 case `isEating`:                    
                     timedEventsJournal.forEach(function(timedEvent) {
-                        if(timedEvent.id === customer.id && timedEvent.type === `isEating`) {
-                            if(timedEvent.frames === frames) {
+                        if(timedEvent.eventType === `isEating` && timedEvent.frames === frames) { // FIXME
+                            if(dishes.length !== 0) {
                                 dishes.forEach(function(dish) {
-                                    if(dish.id === timedEvent.dishId) {
+                                    if(timedEvent.dishId === dish.id) {
                                         dish.status = `isEmpty`;
                                     }
 
@@ -272,7 +274,7 @@ function draw() {
                                 })
                                 removeFromJournal(`events`,timedEvent.id);
                                 customer.status = `isReachingTheExitDoor`;
-                                addToJournal(`customers`, customer.id, {x:700, y:690}); // same y as lobby.y
+                                addToJournal(`customers`, customer.id, {componentX:700, componentY:690}); // same y as lobby.y
                             }
                         }
                     });
@@ -282,7 +284,7 @@ function draw() {
                 case `isReachingTheExitDoor`:
                     if(customer.x === 700 && customer.y === 690 && customer.status === "isReachingTheExitDoor") { // same x & y as in the journal in isEating case
                         customer.status = `isLeavingRestaurant`;
-                        addToJournal(`customers`, customer.id, {x:W+100, y:690});
+                        addToJournal(`customers`, customer.id, {componentX:W+100, componentY:690});
                     }
                     break;
 
@@ -377,7 +379,7 @@ document.addEventListener('click', function(event) {
         }
 
         if(x < surfaceRight && x > surfaceLeft && y > surfaceTop && y < surfaceBottom) {
-            addToJournal(`waiter`, waiter.id, {x:component.interactionX, y:component.interactionY});
+            addToJournal(`waiter`, waiter.id, {componentX:component.interactionX, componentY:component.interactionY});
         }
     }
 
@@ -397,8 +399,8 @@ function drawArray(arrayName, array, journalArray) { // ex values: `customers`, 
     if (journalArray.length !== 0) {
         journalArray.forEach(function(journalEntry){
             array.forEach(function(el) {
-                if(el.id === journalEntry.id){ // if there is a journal entry for the element
-                    el.moveTo(arrayName, el.id, journalEntry.x, journalEntry.y);
+                if(el.id === journalEntry.componentId){ // if there is a journal entry for the element
+                    el.moveTo(arrayName, journalEntry.id, journalEntry.componentX, journalEntry.componentY);
                     el.draw();
                 } else { // if the journal entry does not concern the el, draw it anyway
                     el.draw();
@@ -495,21 +497,21 @@ function multiPush(array1, array2, elementToPush) {
 }
 
 // function to create customer & dish
-function createNew(componentName, customer) { // customer for dish only (customer.favoriteDish && customer.id)
+function createNew(componentName, dishName) { // customer for dish only (customer.favoriteDish && customer.id)
     switch(componentName) {
         case `customer`:
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots);
 
             numberOfCustomersCreated++;
             multiPush(customers,interactiveElements,new Customer(numberOfCustomersCreated)); // create customer and push it to customers & interactiveElements
-            addToJournal(`customers`, numberOfCustomersCreated, {x:lobby.customersSpots[availableSpotIndex].x, y:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
+            addToJournal(`customers`, numberOfCustomersCreated, {componentX:lobby.customersSpots[availableSpotIndex].x, componentY:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
             break;
         case `dish`:
             reserveAndDefineAvailableSpotIndex(servingHatch.dishesSpots);
             availableSpotIndex = availableSpotIndex % servingHatch.dishesSpots.length;
             
             numberOfDishesCreated++;
-            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, customer.id, customer.favoriteDish)); // create dish and push it to dishes & interactiveElements         
+            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, dishName)); // create dish and push it to dishes & interactiveElements         
             break;
     }
     
@@ -534,7 +536,7 @@ function updateLobbySpots() {
     customers.forEach(function(customer) {
         if (customer.status === `isStandingInLine`) {
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots); 
-            addToJournal(`customers`, customer.id, {x:lobby.customersSpots[availableSpotIndex].x, y:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
+            addToJournal(`customers`, customer.id, {componentX:lobby.customersSpots[availableSpotIndex].x, componentY:lobby.customersSpots[availableSpotIndex].y}); // add the customer lobby spot destination in the journal
             lobby.customersSpots[availableSpotIndex+1].available = true; // the previous spot is now available
         }
         availableSpot = null;
@@ -547,27 +549,27 @@ function updateLobbySpots() {
 // ****************************
 
 // functions to update journals
-function addToJournal(componentName,idOfComponent,details) {
+function addToJournal(componentName,componentId,details) {
     switch(componentName) {
         case `waiter`:
-            waiterJournal.push({id:idOfComponent, x:details.x, y:details.y});
+            waiterJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, componentX:details.componentX, componentY:details.componentY});
             break;
         case `customers`:
-            customersJournal.push({id:idOfComponent, x:details.x, y:details.y});
+            customersJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, componentX:details.componentX, componentY:details.componentY});
             break;
         case `dishes`:
-            dishesJournal.push({id:idOfComponent, x:details.x, y:details.y});
+            dishesJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, componentX:details.componentX, componentY:details.componentY});
             break;
         case `events`:
-            timedEventsJournal.push({id:idOfComponent, type:details.type, frames:details.frames, dishId:details.dishId, componentName:details.componentName});
+            timedEventsJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, frames:details.frames, eventType:details.eventType, dishId:details.dishId, componentName:details.componentName, dishName:details.dishName});
             break;
     }
 }
 
-function removeFromJournal(componentName, idOfComponent) {
+function removeFromJournal(componentName, journalEntryId) {
     function removeIdFrom(array) {
         array.forEach(function(el) {
-            if(el.id === idOfComponent) {
+            if(el.id === journalEntryId) {
                 array.splice(array.indexOf(el),1); // remove the element from the array if id of the element and id from the journal match
             };
         });
@@ -713,6 +715,7 @@ function reset() {
     customersJournal.length = 0;
     dishesJournal.length = 0;
     timedEventsJournal.length = 0;
+    numberOfJournalEntryCreated = 0;
     gameover = {status:false};
     frames = 0;
     moneyTarget = 120;
