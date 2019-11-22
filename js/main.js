@@ -152,6 +152,7 @@ function draw() {
                     tables.forEach(function (table) {
                         if(customer.x === table.chairX && customer.y === table.chairY) {
                             customer.status = `hasReceivedTheMenu`;
+                            customer.tableId = tables.indexOf(table); // fill tableId in customer profile
                             table.x = table.chairX; // move the table if front of the customer
                         }
                     });
@@ -192,7 +193,7 @@ function draw() {
                 
                 // 8: once the waiter arrived, he places the order
                 case `isPlacingTheOrder`:
-                    addToJournal(`events`, customer.id, {frames:frames+300,eventType:`cookingTime`,dishName:customer.favoriteDish}); // the dish will be available in 300 frames
+                    addToJournal(`events`, customer.id, {frames:frames+300,eventType:`cookingTime`,dish:customer.favoriteDish}); // the dish will be available in 300 frames
                     customer.status = `isWaitingForTheDish`;
                     waiter.status = `isAvailable`;
                     break;
@@ -202,11 +203,9 @@ function draw() {
                     customer.showOrderedDish();
 
                     timedEventsJournal.forEach(function(timedEvent) {
-                        if(timedEvent.componentId === customer.id && timedEvent.eventType === `cookingTime`) {
-                            if(timedEvent.frames === frames) {
-                                createNew(`dish`,timedEvent.dishName); // create and display a new dish FIXME replace customer by name of dish in "hard" to prevent null customer if other plate served to him
-                                removeFromJournal(`events`,timedEvent.id);
-                            }
+                        if(timedEvent.eventType === `cookingTime` && timedEvent.frames === frames) { // FIXME replace customer by name of dish in "hard" to prevent null customer if other plate served to him
+                            createNew(`dish`,timedEvent.dish); // create and display a new dish 
+                            removeFromJournal(`events`,timedEvent.id);
                         }
                     });
 
@@ -237,7 +236,7 @@ function draw() {
                                             dish.interactionX = table.interactionX; // update the dish interaction X according to the table it is laid on
                                             dish.interactionY = table.interactionY; // update the dish interaction Y according to the table it is laid on
                                             customer.status = `isReceivingTheDish`;
-                                            addToJournal(`events`, customer.id, {frames:frames+300,eventType:`isEating`,dishId:dish.id}); // the customer will finish eating in 300 frames
+                                            addToJournal(`events`, customer.id, {frames:frames+300,eventType:`isEating`,dish:dish}); // the customer will finish eating in 300 frames
                                         }
                                     }
                                 });
@@ -257,25 +256,19 @@ function draw() {
                 // 11: once served, he eats
                 case `isEating`:                    
                     timedEventsJournal.forEach(function(timedEvent) {
-                        if(timedEvent.eventType === `isEating` && timedEvent.frames === frames) { // FIXME
-                            if(dishes.length !== 0) {
-                                dishes.forEach(function(dish) {
-                                    if(timedEvent.dishId === dish.id) {
-                                        dish.status = `isEmpty`;
-                                    }
-
-                                    tables.forEach(function(table) {
-                                        if(table.interactionX === dish.interactionX && table.interactionY === dish.interactionY && customer.x === table.chairX && customer.y === table.chairY) {
-                                            table.x = table.emptyTableX; // move the table to its initial position
-                                            dish.x = table.emptyTableX; // move the dish on the new position of the table
-                                            table.hasMoney = true; // display the money on the table
-                                        }
-                                    })
-                                })
-                                removeFromJournal(`events`,timedEvent.id);
-                                customer.status = `isReachingTheExitDoor`;
-                                addToJournal(`customers`, customer.id, {componentX:700, componentY:690}); // same y as lobby.y
-                            }
+                        if(timedEvent.eventType === `isEating` && timedEvent.frames === frames && dishes.length !== 0) { // if an isEating event is reached and one dish is at least created 
+                            dishes.forEach(function(dish) {
+                                if(timedEvent.dish.id === dish.id && timedEvent.dish.id === customer.servedDishId) {
+                                    dish.status = `isEmpty`;
+                                    tables[customer.tableId].x = tables[customer.tableId].emptyTableX; // move the table to its initial position
+                                    dish.x = tables[customer.tableId].emptyTableX; // move the dish on the new position of the table
+                                    tables[customer.tableId].hasMoney = true; // display the money on the table
+                                    
+                                    removeFromJournal(`events`,timedEvent.id);
+                                    customer.status = `isReachingTheExitDoor`;
+                                    addToJournal(`customers`, customer.id, {componentX:700, componentY:690}); // same y as lobby.y
+                                }
+                            })
                         }
                     });
                     break;
@@ -497,7 +490,7 @@ function multiPush(array1, array2, elementToPush) {
 }
 
 // function to create customer & dish
-function createNew(componentName, dishName) { // customer for dish only (customer.favoriteDish && customer.id)
+function createNew(componentName, dish) { // customer for dish only (customer.favoriteDish && customer.id)
     switch(componentName) {
         case `customer`:
             reserveAndDefineAvailableSpotIndex(lobby.customersSpots);
@@ -511,7 +504,7 @@ function createNew(componentName, dishName) { // customer for dish only (custome
             availableSpotIndex = availableSpotIndex % servingHatch.dishesSpots.length;
             
             numberOfDishesCreated++;
-            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, dishName)); // create dish and push it to dishes & interactiveElements         
+            multiPush(dishes,interactiveElements,new Dish(servingHatch.dishesSpots[availableSpotIndex].x, servingHatch.dishesSpots[availableSpotIndex].y, numberOfDishesCreated, dish)); // create dish and push it to dishes & interactiveElements         
             break;
     }
     
@@ -561,7 +554,7 @@ function addToJournal(componentName,componentId,details) {
             dishesJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, componentX:details.componentX, componentY:details.componentY});
             break;
         case `events`:
-            timedEventsJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, frames:details.frames, eventType:details.eventType, dishId:details.dishId, componentName:details.componentName, dishName:details.dishName});
+            timedEventsJournal.push({id:numberOfJournalEntryCreated++, componentId:componentId, frames:details.frames, eventType:details.eventType, componentName:details.componentName, dish:details.dish});
             break;
     }
 }

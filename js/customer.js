@@ -27,6 +27,7 @@ class Customer extends DynamicComponent {
         }
         customerImage.src = './img/customer.png';
         
+        this.tableId = null;
         this.favoriteDish = this.chooseDish();
         this.servedDishId = null;
         this.animated = false;
