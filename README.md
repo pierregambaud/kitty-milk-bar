@@ -1,5 +1,7 @@
 # Kitty milk bar
 
+![Screenshot](img/readme-screenshot.png)
+
 Kitty milk bar is a **restaurant management game**. Your mission is to help Kitty, the owner of the bar, to **take care of all customers**.
 
 **How to play?** Only one way: use the **left button of your mouse** to click on the interactive elements and show Kitty what to do.
@@ -12,6 +14,8 @@ Kitty milk bar is a **restaurant management game**. Your mission is to help Kitt
 
 **How to win?** By earning at least the targeted money objective.
 
+## Want to play?
+**Live demo:** [available here](https://pierregambaud.github.io/kitty-milk-bar/)
 
 ## Getting Started
 
@@ -25,13 +29,9 @@ Nothing special: a browser and a code editor.
 
 Simply open index.html
 
-### Playing online
-
-Play it right now by [clicking here](https://pierregambaud.github.io/kitty-milk-bar/).
-
 ## Author
 
-* **Pierre Gambaud** - https://github.com/pierregambaud
+* **Pierre Gambaud** - https://github.com/pierregambaud - https://www.linkedin.com/in/pierregambaud/
 
 
 ## Acknowledgments
