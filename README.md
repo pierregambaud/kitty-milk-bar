@@ -1,4 +1,4 @@
-**Live demo:** [available here](https://pierregambaud.github.io/projects/kitty-milk-bar/)
+**Live demo:** [available here](https://pierre.gambaud.com/projects/kitty-milk-bar/)
 
 # Kitty milk bar
 
