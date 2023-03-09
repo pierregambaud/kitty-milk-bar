@@ -1,4 +1,4 @@
-**Live demo:** [available here](https://pierre.gambaud.com/projects/kitty-milk-bar/)
+**Live demo:** [available here](https://pierre.gambaud.com/p/kitty-milk-bar/)
 
 # Kitty milk bar
 
@@ -30,7 +30,7 @@ Simply open index.html
 
 ## Author
 
-* **Pierre Gambaud** - https://github.com/pierregambaud - https://www.linkedin.com/in/pierregambaud/
+* **Pierre Gambaud** - https://pierre.gambaud.com
 
 
 ## Acknowledgments
